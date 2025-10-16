@@ -5,7 +5,7 @@ const google = createGoogleGenerativeAI({
   apiKey: process.env.GEMINI_API_KEY,
 });
 
-export async function POST(req: Request) {
+export async function POST() {
   try {
     // Read any request data if needed (optional)
 

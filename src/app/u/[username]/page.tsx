@@ -4,21 +4,13 @@ import React, { useState } from "react";
 import { useParams } from "next/navigation";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardAction,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import axios from "axios";
 import { ApiResponse } from "@/types/ApiResponse";
 import { toast } from "sonner";
 import { useDebounceCallback } from "usehooks-ts";
 
-const page = () => {
+const Page = () => {
   const params = useParams<{ username: string }>();
   const [message, setMessages] = useState("");
   const username = params.username;
@@ -111,4 +103,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;
