@@ -1,11 +1,11 @@
-import { NextAuthOptions } from "next-auth";
+import { NextAuthOptions, User } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import dbConnect from "@/lib/dbConnect";
-import UserModel from "@/models/User";
+import UserModel, { User as IUser } from "@/models/User";
 
 interface Credentials {
-  identifier: string; // can be email or username
+  identifier: string; // email or username
   password: string;
 }
 
@@ -19,64 +19,69 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" },
       },
 
-      // Use this instead of `any`
       async authorize(
         credentials: Record<keyof Credentials, string> | undefined
-      ): Promise<any> {
+      ): Promise<User | null> {
         if (!credentials) return null;
 
         const { identifier, password } = credentials;
         await dbConnect();
 
-        try {
-          const user = await UserModel.findOne({
-            $or: [{ email: identifier }, { username: identifier }],
-          });
+        // ✅ Type cast the Mongoose document so TypeScript knows the fields
+        const user = (await UserModel.findOne({
+          $or: [{ email: identifier }, { username: identifier }],
+        })) as IUser | null;
 
-          if (!user)
-            throw new Error("No user found with this email or username");
-          if (!user.isVerified)
-            throw new Error("Please verify your account first");
+        if (!user) throw new Error("No user found");
+        if (!user.isVerified)
+          throw new Error("Please verify your account first");
 
-          const isPasswordCorrect = await bcrypt.compare(
-            password,
-            user.password
-          );
-          if (!isPasswordCorrect) throw new Error("Incorrect password");
+        const isPasswordCorrect = await bcrypt.compare(password, user.password);
+        if (!isPasswordCorrect) throw new Error("Incorrect password");
 
-          return user;
-        } catch (err) {
-          console.error("Authorize error:", err);
-          throw new Error("Authentication failed");
-        }
+        // ✅ Only return fields compatible with NextAuth User type
+        return {
+          id: user.id.toString(), // now TS knows _id exists
+          name: user.username,
+          email: user.email,
+        };
       },
     }),
   ],
+
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token._id = user._id?.toString(); // Convert ObjectId to string
-        token.isVerified = user.isVerified;
-        token.isAcceptingMessages = user.isAcceptingMessages;
-        token.username = user.username;
+        // user comes from authorize(), only has id, name, email
+        const dbUser = (await UserModel.findById(user.id)) as IUser | null;
+        if (dbUser) {
+          token._id = dbUser.id.toString();
+          token.isVerified = dbUser.isVerified;
+          token.isAcceptingMessages = dbUser.isAcceptingMessage;
+          token.username = dbUser.username;
+        }
       }
       return token;
     },
+
     async session({ session, token }) {
-      if (token) {
-        session.user._id = token._id;
-        session.user.isVerified = token.isVerified;
-        session.user.isAcceptingMessages = token.isAcceptingMessages;
-        session.user.username = token.username;
+      if (session.user) {
+        session.user._id = token._id as string;
+        session.user.isVerified = token.isVerified as boolean;
+        session.user.isAcceptingMessages = token.isAcceptingMessages as boolean;
+        session.user.username = token.username as string;
       }
       return session;
     },
   },
+
   pages: {
     signIn: "/sign-in",
   },
+
   session: {
     strategy: "jwt",
   },
+
   secret: process.env.NEXTAUTH_SECRET,
 };
