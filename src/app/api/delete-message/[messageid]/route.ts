@@ -1,17 +1,22 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../auth/[...nextauth]/options";
 import dbConnect from "@/lib/dbConnect";
-import UserModel, { User } from "@/models/User";
-import { User as IUserSession } from "next-auth";
+import UserModel from "@/models/User";
 
-type Params = { messageid: string };
+export async function DELETE(req: Request) {
+  const url = new URL(req.url);
+  const messageid = url.pathname.split("/").pop(); // gets the [messageid] segment
 
-export async function DELETE(_req: Request, context: { params: Params }) {
-  const { messageid } = context.params;
+  if (!messageid) {
+    return new Response(
+      JSON.stringify({ success: false, message: "Message ID missing" }),
+      { status: 400, headers: { "Content-Type": "application/json" } }
+    );
+  }
+
   await dbConnect();
-
   const session = await getServerSession(authOptions);
-  const user = session?.user as IUserSession | undefined;
+  const user = session?.user;
 
   if (!session || !user) {
     return new Response(
@@ -22,7 +27,7 @@ export async function DELETE(_req: Request, context: { params: Params }) {
 
   try {
     const updatedResult = await UserModel.updateOne(
-      { _id: (user as User)._id }, // your session.user._id
+      { _id: (user as any)._id }, // _id from session
       { $pull: { messages: { _id: messageid } } }
     );
 
