@@ -37,6 +37,8 @@ const Page = () => {
           }
         });
     } catch (error) {
+      console.log(error);
+
       toast.error("unable to send a message");
     }
   };
@@ -51,6 +53,8 @@ const Page = () => {
           setSuggestedMessages(response.data.suggestions as string);
         });
     } catch (error) {
+      console.log(error);
+
       toast.error("error suggesting messages");
     }
   };

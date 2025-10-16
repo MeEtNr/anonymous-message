@@ -7,7 +7,7 @@ export async function POST(req: Request) {
   try {
     const { username, code } = await req.json();
 
-    const decodedUsername = decodeURIComponent(username); //used when data is coming from the requesdt URL (query)
+    // const decodedUsername = decodeURIComponent(username); //used when data is coming from the requesdt URL (query)
 
     const user = await UserModel.findOne({
       username,

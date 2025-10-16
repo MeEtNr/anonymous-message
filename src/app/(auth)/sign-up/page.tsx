@@ -9,7 +9,7 @@ import { useDebounceCallback } from "usehooks-ts";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { signUpSchema } from "@/schemas/signUpSchema";
-import axios, { Axios, AxiosError } from "axios";
+import axios, { AxiosError } from "axios";
 import { ApiResponse } from "@/types/ApiResponse";
 import {
   FormControl,
@@ -74,7 +74,7 @@ const Page = () => {
       setIsSubmitting(false);
     } catch (error) {
       console.error("Error in signup of user", error);
-      const axiosError = error as AxiosError<ApiResponse>;
+      // const axiosError = error as AxiosError<ApiResponse>;
       // let errorMessage = axiosError.response?.data.message; // we don't need this currently
       toast.error("Signup failed");
       setIsSubmitting(false);
