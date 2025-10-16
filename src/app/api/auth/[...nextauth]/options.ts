@@ -4,42 +4,47 @@ import bcrypt from "bcryptjs";
 import dbConnect from "@/lib/dbConnect";
 import UserModel from "@/models/User";
 
+interface Credentials {
+  identifier: string; // can be email or username
+  password: string;
+}
+
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
       id: "credentials",
       name: "Credentials",
       credentials: {
-        username: { label: "Email", type: "text" },
+        identifier: { label: "Email or Username", type: "text" },
         password: { label: "Password", type: "password" },
       },
-      async authorize(credentials: any): Promise<any> {
+
+      // Use this instead of `any`
+      async authorize(
+        credentials: Record<keyof Credentials, string> | undefined
+      ): Promise<any> {
+        if (!credentials) return null;
+
+        const { identifier, password } = credentials;
         await dbConnect();
+
         try {
           const user = await UserModel.findOne({
-            $or: [
-              { email: credentials.identifier },
-              { username: credentials.identifier },
-            ],
+            $or: [{ email: identifier }, { username: identifier }],
           });
-          if (!user) {
-            throw new Error("No user found with this email");
-          }
 
-          if (!user.isVerified) {
+          if (!user)
+            throw new Error("No user found with this email or username");
+          if (!user.isVerified)
             throw new Error("Please verify your account first");
-          }
 
           const isPasswordCorrect = await bcrypt.compare(
-            credentials.password,
+            password,
             user.password
           );
+          if (!isPasswordCorrect) throw new Error("Incorrect password");
 
-          if (isPasswordCorrect) {
-            return user;
-          } else {
-            throw new Error("Incorrect password");
-          }
+          return user;
         } catch (err) {
           console.error("Authorize error:", err);
           throw new Error("Authentication failed");
