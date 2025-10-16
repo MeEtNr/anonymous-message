@@ -1,7 +1,7 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../auth/[...nextauth]/options";
 import dbConnect from "@/lib/dbConnect";
-import UserModel from "@/models/User";
+import UserModel, { User } from "@/models/User";
 import { User as IUserSession } from "next-auth";
 
 type Params = { messageid: string };
@@ -22,7 +22,7 @@ export async function DELETE(_req: Request, context: { params: Params }) {
 
   try {
     const updatedResult = await UserModel.updateOne(
-      { _id: (user as any)._id }, // your session.user._id
+      { _id: (user as User)._id }, // your session.user._id
       { $pull: { messages: { _id: messageid } } }
     );
 
