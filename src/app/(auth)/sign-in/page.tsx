@@ -64,12 +64,14 @@ const Page = () => {
   };
   return (
     <>
-      <div className="flex min-h-screen items-center justify-center p-4 bg-black">
-        <div className="w-full max-w-md mx-4 bg-[#0d0d0d] rounded-2xl shadow-lg p-8 space-y-6">
+      <div className="flex min-h-screen items-center justify-center p-4 bg-background">
+        <div className="w-full max-w-md mx-4 bg-card rounded-2xl shadow-lg p-8 space-y-6">
           {/* Title and description */}
           <div className="text-center">
-            <h1 className="text-3xl font-bold text-white">Anonymous Message</h1>
-            <p className="mt-2 text-gray-400">Sign in</p>
+            <h1 className="text-3xl font-bold text-foreground">
+              Anonymous Message
+            </h1>
+            <p className="mt-2 text-muted-foreground">Sign in to continue</p>
           </div>
 
           <Form {...form}>
@@ -79,12 +81,12 @@ const Page = () => {
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-white">Email/Username</FormLabel>
+                    <FormLabel>Email / Username</FormLabel>
                     <FormControl>
                       <Input
-                        className="bg-[#1a1a1a] border border-gray-700 text-white placeholder-gray-500 focus:ring-orange-500 focus:border-orange-500"
-                        placeholder="Email/Username"
                         {...field}
+                        placeholder="Email / Username"
+                        className="bg-input text-foreground placeholder:text-muted-foreground border border-border focus:border-primary focus:ring-primary rounded-lg"
                       />
                     </FormControl>
                     <FormMessage />
@@ -97,13 +99,13 @@ const Page = () => {
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-white">Password</FormLabel>
+                    <FormLabel>Password</FormLabel>
                     <FormControl>
                       <Input
-                        type="password"
-                        className="bg-[#1a1a1a] border border-gray-700 text-white placeholder-gray-500 focus:ring-orange-500 focus:border-orange-500"
-                        placeholder="Password"
                         {...field}
+                        type="password"
+                        placeholder="Password"
+                        className="bg-input text-foreground placeholder:text-muted-foreground border border-border focus:border-primary focus:ring-primary rounded-lg"
                       />
                     </FormControl>
                     <FormMessage />
@@ -114,13 +116,13 @@ const Page = () => {
               <Button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full bg-orange-600 hover:bg-orange-700 text-white font-semibold"
+                className="w-full bg-primary text-primary-foreground font-semibold rounded-xl shadow hover:shadow-primary/50 transition-all"
               >
                 {isSubmitting ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Please
-                    wait
-                  </>
+                  <div className="flex items-center justify-center space-x-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span>Please wait</span>
+                  </div>
                 ) : (
                   "Sign in"
                 )}
@@ -129,12 +131,12 @@ const Page = () => {
           </Form>
 
           {/* Sign up link */}
-          <div className="text-center mt-6 text-sm text-gray-400">
+          <div className="text-center mt-6 text-muted-foreground">
             <p>
               Not a member?{" "}
               <Link
                 href="/sign-up"
-                className="text-orange-500 hover:text-orange-600 font-medium"
+                className="text-primary hover:underline font-medium"
               >
                 Sign up
               </Link>

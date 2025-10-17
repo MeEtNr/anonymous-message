@@ -82,30 +82,31 @@ const Page = () => {
   };
   return (
     <>
-      <div className="flex min-h-screen items-center justify-center p-4 bg-black">
-        <div className="w-full max-w-md mx-4 bg-[#0d0d0d] rounded-xl shadow-md p-8 space-y-6">
+      <div className="flex min-h-screen items-center justify-center p-4 bg-background">
+        <div className="w-full max-w-md mx-4 bg-card rounded-2xl shadow-lg p-8 space-y-6">
           {/* Title and description */}
           <div className="text-center">
-            <h1 className="text-3xl font-bold text-orange-500">
+            <h1 className="text-3xl font-bold text-foreground">
               Anonymous Message
             </h1>
-            <p className="mt-2 text-gray-400">
+            <p className="mt-2 text-muted-foreground">
               Sign up and start your anonymous adventure
             </p>
           </div>
 
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              {/* Username */}
               <FormField
                 name="username"
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-white">Username</FormLabel>
+                    <FormLabel>Username</FormLabel>
                     <FormControl>
                       <Input
                         placeholder="Username"
-                        className="bg-black text-white border-gray-700 focus:ring-orange-500"
+                        className="bg-input text-foreground placeholder:text-muted-foreground border border-border focus:border-primary focus:ring-primary rounded-lg"
                         {...field}
                         onChange={(e) => {
                           field.onChange(e);
@@ -114,7 +115,7 @@ const Page = () => {
                       />
                     </FormControl>
                     {isCheckingUsername && (
-                      <Loader2 className="animate-spin h-4 w-4 mt-1 text-orange-500" />
+                      <Loader2 className="animate-spin h-4 w-4 mt-1 text-primary" />
                     )}
                     <p
                       className={`text-sm ${
@@ -125,21 +126,21 @@ const Page = () => {
                     >
                       {usernameMessge}
                     </p>
-                    <FormMessage />
                   </FormItem>
                 )}
               />
 
+              {/* Email */}
               <FormField
                 name="email"
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-white">Email</FormLabel>
+                    <FormLabel>Email</FormLabel>
                     <FormControl>
                       <Input
                         placeholder="Email"
-                        className="bg-black text-white border-gray-700 focus:ring-orange-500"
+                        className="bg-input text-foreground placeholder:text-muted-foreground border border-border focus:border-primary focus:ring-primary rounded-lg"
                         {...field}
                       />
                     </FormControl>
@@ -148,17 +149,18 @@ const Page = () => {
                 )}
               />
 
+              {/* Password */}
               <FormField
                 name="password"
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-white">Password</FormLabel>
+                    <FormLabel>Password</FormLabel>
                     <FormControl>
                       <Input
                         type="password"
                         placeholder="Password"
-                        className="bg-black text-white border-gray-700 focus:ring-orange-500"
+                        className="bg-input text-foreground placeholder:text-muted-foreground border border-border focus:border-primary focus:ring-primary rounded-lg"
                         {...field}
                       />
                     </FormControl>
@@ -167,30 +169,31 @@ const Page = () => {
                 )}
               />
 
+              {/* Submit button */}
               <Button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full bg-orange-500 text-white hover:bg-orange-600"
+                className="w-full bg-primary text-primary-foreground font-semibold rounded-xl shadow hover:shadow-primary/50 transition-all"
               >
                 {isSubmitting ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Please
-                    wait
-                  </>
+                  <div className="flex items-center justify-center space-x-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span>Please wait</span>
+                  </div>
                 ) : (
-                  "Signup"
+                  "Sign up"
                 )}
               </Button>
             </form>
           </Form>
 
           {/* Sign in link */}
-          <div className="text-center mt-6 text-sm">
-            <p className="text-gray-400">
+          <div className="text-center mt-6 text-muted-foreground">
+            <p>
               Already a member?{" "}
               <Link
                 href="/sign-in"
-                className="text-orange-500 hover:text-orange-600 underline"
+                className="text-primary hover:underline font-medium"
               >
                 Sign in
               </Link>

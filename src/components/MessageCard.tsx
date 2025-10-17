@@ -68,8 +68,15 @@ const MessageCard = ({ message, onMessageDelete }: MessageCardProps) => {
       <CardHeader className="pr-16">
         {" "}
         {/* <--- Add padding-right here */}
-        <CardTitle className="text-xl">{message.content}</CardTitle>
-        <CardDescription>{message.createdAt.toString()}</CardDescription>
+        <CardTitle className="text-xl break-words overflow-hidden text-ellipsis">
+          {message.content}
+        </CardTitle>
+        <CardDescription>
+          {new Date(message.createdAt).toLocaleString("en-IN", {
+            dateStyle: "medium",
+            timeStyle: "short",
+          })}
+        </CardDescription>
       </CardHeader>
     </Card>
   );
