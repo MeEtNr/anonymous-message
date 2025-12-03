@@ -16,8 +16,10 @@ import {
 import { Button } from "@/components/ui/button";
 import messages from "@/messages.json";
 import Autoplay from "embla-carousel-autoplay";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
+  const router = useRouter();
   return (
     <>
       <main className="min-h-screen bg-background flex flex-col">
@@ -31,7 +33,10 @@ export default function Home() {
             your identity. Start a conversation, leave a message, or just share
             your thoughts anonymously.
           </p>
-          <Button className="bg-primary hover:bg-primary/90 text-primary-foreground px-6 sm:px-8 py-3 sm:py-4 rounded-xl text-base sm:text-lg transition-all duration-300">
+          <Button
+            onClick={() => router.replace("/sign-up")}
+            className="bg-primary hover:bg-primary/90 text-primary-foreground px-6 sm:px-8 py-3 sm:py-4 rounded-xl text-base sm:text-lg transition-all duration-300"
+          >
             Get Started
           </Button>
         </section>

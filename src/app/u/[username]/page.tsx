@@ -8,7 +8,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import axios from "axios";
 import { ApiResponse } from "@/types/ApiResponse";
 import { toast } from "sonner";
-import { useDebounceCallback } from "usehooks-ts";
 
 const Page = () => {
   const params = useParams<{ username: string }>();
@@ -21,8 +20,6 @@ const Page = () => {
 
   const [suggestedMessages, setSuggestedMessages] =
     useState(initialMessageString);
-
-  const debounced = useDebounceCallback(setMessages, 500);
 
   const handleMessageClick = (msg: string) => {
     setMessages(msg);
