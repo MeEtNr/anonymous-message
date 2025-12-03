@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import axios from "axios";
-import { ApiResponse } from "@/types/ApiResponse";
+// import { ApiResponse } from "@/types/ApiResponse";
 import { toast } from "sonner";
 
 const Page = () => {
@@ -18,8 +18,7 @@ const Page = () => {
   const initialMessageString =
     "What's your favorite movie?||Do you have any pets?||What's your dream job?";
 
-  const [suggestedMessages, setSuggestedMessages] =
-    useState(initialMessageString);
+  const [suggestedMessages] = useState(initialMessageString);
 
   const handleMessageClick = (msg: string) => {
     setMessages(msg);
@@ -48,15 +47,15 @@ const Page = () => {
     }
   };
 
-  const handleSuggestButton = async () => {
-    try {
-      const response = await axios.post<ApiResponse>("/api/suggest-messages");
-      setSuggestedMessages(response.data.suggestions as string);
-    } catch (error) {
-      console.log(error);
-      toast.error("Error suggesting messages");
-    }
-  };
+  // const handleSuggestButton = async () => {
+  //   try {
+  //     const response = await axios.post<ApiResponse>("/api/suggest-messages");
+  //     setSuggestedMessages(response.data.suggestions as string);
+  //   } catch (error) {
+  //     console.log(error);
+  //     toast.error("Error suggesting messages");
+  //   }
+  // };
 
   return (
     <>
@@ -69,6 +68,7 @@ const Page = () => {
           className="max-w-200 mt-4"
           value={message}
           onChange={(e) => setMessages(e.target.value)}
+          placeholder="Type your message..."
         />
 
         <div className="flex justify-center">
@@ -77,20 +77,20 @@ const Page = () => {
           </Button>
         </div>
 
-        <div className="mt-4">
+        {/* <div className="mt-4">
           <Button onClick={handleSuggestButton}>Suggest Messages</Button>
           <p className="mt-4">Click on any message to select</p>
-        </div>
+        </div> */}
 
         <Card className="mt-3">
           <CardHeader>
-            <CardTitle>Messages</CardTitle>
+            <CardTitle>Need Inspiration?</CardTitle>
             <CardContent className="flex flex-col space-y-4">
               {suggestedMessages.split("||").map((msg, index) => (
                 <Button
                   key={index}
                   type="button"
-                  className="bg-white whitespace-normal break-words h-14 shadow-gray-300 text-black mt-2 w-full"
+                  className="bg-white hover:bg-secondary transition-colors duration-600 ease-in-out whitespace-normal break-words h-14 shadow-gray-300 text-black mt-2 w-full"
                   onClick={() => handleMessageClick(msg)}
                 >
                   {msg}
