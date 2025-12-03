@@ -58,7 +58,10 @@ const MessageCard = ({ message, onMessageDelete }: MessageCardProps) => {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeleteConfirm}>
+            <AlertDialogAction
+              className="bg-destructive"
+              onClick={handleDeleteConfirm}
+            >
               Continue
             </AlertDialogAction>
           </AlertDialogFooter>
