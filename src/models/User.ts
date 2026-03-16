@@ -17,6 +17,34 @@ const MessageSchema: Schema<Message> = new Schema({
   },
 });
 
+export interface Question extends Document {
+  content: string;
+  createdAt: Date;
+  messages: Message[];
+  isDeleted: boolean;
+}
+
+const QuestionSchema: Schema<Question> = new Schema({
+  _id: {
+    type: Schema.Types.ObjectId,
+    default: () => new mongoose.Types.ObjectId(),
+  },
+  content: {
+    type: String,
+    required: [true, "Question content is required"],
+  },
+  createdAt: {
+    type: Date,
+    required: true,
+    default: Date.now,
+  },
+  messages: [MessageSchema],
+  isDeleted: {
+    type: Boolean,
+    default: false,
+  },
+}, { strict: false });
+
 export interface User extends Document {
   username: string;
   email: string;
@@ -26,6 +54,7 @@ export interface User extends Document {
   isAcceptingMessage: boolean;
   isVerified: boolean;
   messages: Message[];
+  questions: Question[];
   createdAt: Date;
 }
 
@@ -63,12 +92,16 @@ const UserSchema: Schema<User> = new Schema({
     default: true,
   },
   messages: [MessageSchema],
+  questions: {
+    type: [QuestionSchema],
+    default: [],
+  },
   createdAt: {
     type: Date,
     required: true,
     default: Date.now,
   },
-});
+}, { strict: false });
 
 const UserModel =
   (mongoose.models.User as mongoose.Model<User>) ||

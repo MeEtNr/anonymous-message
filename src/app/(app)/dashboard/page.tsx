@@ -12,13 +12,17 @@ import { Loader2, RefreshCcw } from "lucide-react";
 import MessageCard from "@/components/MessageCard";
 import { acceptMessageSchema } from "@/schemas/acceptMessageSchema";
 import type { ApiResponse } from "@/types/ApiResponse";
-import type { Message } from "@/models/User";
+import type { Message, Question } from "@/models/User";
 import type { User } from "@/models/User";
+import QuestionCard from "@/components/QuestionCard";
 
 export default function UserDashboard() {
   const [messages, setMessages] = useState<Message[]>([]);
+  const [questions, setQuestions] = useState<Question[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isSwitchLoading, setIsSwitchLoading] = useState(false);
+  const [newQuestionContent, setNewQuestionContent] = useState("");
+  const [isCreatingQuestion, setIsCreatingQuestion] = useState(false);
 
   const handleDeleteMessage = (messageId: string) => {
     setMessages(messages.filter((m) => m._id !== messageId));
@@ -61,11 +65,22 @@ export default function UserDashboard() {
     }
   }, []);
 
+  const fetchQuestions = useCallback(async () => {
+    try {
+      const response = await axios.get<ApiResponse>("/api/get-questions");
+      setQuestions(response.data.questions || []);
+    } catch (error) {
+      const axiosError = error as AxiosError<ApiResponse>;
+      toast(axiosError.response?.data.message ?? "Failed to fetch questions.");
+    }
+  }, []);
+
   useEffect(() => {
     if (!session?.user) return;
     fetchMessages();
     fetchAcceptMessages();
-  }, [session, fetchAcceptMessages, fetchMessages]);
+    fetchQuestions();
+  }, [session, fetchAcceptMessages, fetchMessages, fetchQuestions]);
 
   const handleSwitchChange = async () => {
     try {
@@ -83,6 +98,31 @@ export default function UserDashboard() {
     }
   };
 
+  const handleCreateQuestion = async () => {
+    if (!newQuestionContent.trim()) {
+      return toast.error("Question content cannot be empty");
+    }
+
+    setIsCreatingQuestion(true);
+    try {
+      const response = await axios.post<ApiResponse>("/api/create-question", {
+        content: newQuestionContent,
+      });
+      if (response.data.success) {
+        toast.success("Question created successfully!");
+        setNewQuestionContent("");
+        fetchQuestions();
+      }
+    } catch (error) {
+      const axiosError = error as AxiosError<ApiResponse>;
+      toast(
+        axiosError.response?.data.message ?? "Failed to create question."
+      );
+    } finally {
+      setIsCreatingQuestion(false);
+    }
+  };
+
   if (!session?.user) return <div />;
 
   const { username } = session.user as User;
@@ -97,91 +137,160 @@ export default function UserDashboard() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white py-5 px-3">
       <div className="max-w-6xl mx-auto bg-white shadow-lg rounded-2xl p-8">
-        <h1 className="text-4xl font-extrabold text-blue-700 mb-6">
-          Dashboard
-        </h1>
-
-        {/* Profile Link Section */}
-        <div className="mb-8">
-          <h2 className="text-lg font-semibold mb-3 text-gray-700">
-            Your Unique Profile Link
-          </h2>
-          <div className="flex flex-col sm:flex-row items-center gap-3">
-            <input
-              type="text"
-              value={profileUrl}
-              disabled
-              className="w-full sm:flex-1 border border-gray-300 rounded-lg p-2 text-gray-600"
-            />
-            <Button onClick={copyToClipboard} className="w-full sm:w-auto">
-              Copy Link
-            </Button>
-          </div>
-        </div>
-
-        {/* Accept Messages Switch */}
-        <div className="flex items-center justify-between bg-blue-50 p-4 rounded-lg mb-6">
-          <div className="flex items-center gap-3">
+        <div className="flex items-center justify-between mb-8">
+          <h1 className="text-4xl font-extrabold text-blue-700">
+            Dashboard
+          </h1>
+          <div className="flex items-center gap-3 bg-blue-50 p-3 rounded-lg">
             <Switch
               {...register("acceptMessages")}
               checked={acceptMessages}
               onCheckedChange={handleSwitchChange}
               disabled={isSwitchLoading}
             />
-            <span className="text-gray-700 font-medium">
-              Accept Messages:{" "}
-              <span
-                className={
-                  acceptMessages
-                    ? "text-green-600 font-semibold"
-                    : "text-red-500 font-semibold"
-                }
-              >
-                {acceptMessages ? "On" : "Off"}
-              </span>
+            <span className="text-gray-700 font-medium hidden sm:inline">
+              Accepting Messages
             </span>
           </div>
         </div>
 
-        <Separator />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+          {/* Profile Link Section */}
+          <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm flex flex-col justify-between">
+            <div>
+              <h2 className="text-lg font-semibold mb-3 text-gray-700">
+                Your Public Profile Link
+              </h2>
+              <p className="text-sm text-gray-500 mb-4">
+                Share this link to receive general anonymous messages.
+              </p>
+            </div>
+            <div className="flex flex-col sm:flex-row items-center gap-3">
+              <input
+                type="text"
+                value={profileUrl}
+                disabled
+                className="w-full sm:flex-1 border border-gray-300 rounded-lg p-2 text-gray-600 bg-gray-50"
+              />
+              <Button onClick={copyToClipboard} className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700">
+                Copy Link
+              </Button>
+            </div>
+          </div>
 
-        {/* Refresh Button */}
-        <div className="flex justify-end mt-4">
-          <Button
-            variant="outline"
-            onClick={(e) => {
-              e.preventDefault();
-              fetchMessages(true);
-            }}
-          >
-            {isLoading ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <RefreshCcw className="h-4 w-4" />
-            )}
-            <span className="ml-2">Refresh</span>
-          </Button>
+          {/* New Question Section */}
+          <div className="bg-blue-50/10 p-6 rounded-xl border-blue-100 shadow-sm flex flex-col justify-between border-2 border-dashed">
+            <div>
+              <h2 className="text-lg font-semibold mb-3 text-blue-800">
+                Ask a Specific Question
+              </h2>
+              <p className="text-sm text-blue-600/70 mb-4">
+                Create a dedicated link for a specific question you want to ask.
+              </p>
+            </div>
+            <div className="flex flex-col gap-3">
+              <input
+                type="text"
+                placeholder="e.g., What should I improve in my portfolio?"
+                value={newQuestionContent}
+                onChange={(e) => setNewQuestionContent(e.target.value)}
+                className="w-full border border-blue-200 rounded-lg p-2 text-gray-700 focus:ring-2 focus:ring-blue-500 outline-none"
+              />
+              <Button 
+                onClick={handleCreateQuestion} 
+                className="w-full bg-orange-600 hover:bg-orange-700 text-white font-semibold"
+                disabled={isCreatingQuestion}
+              >
+                {isCreatingQuestion ? <Loader2 className="animate-spin h-4 w-4" /> : "Publish Question Link"}
+              </Button>
+            </div>
+          </div>
         </div>
 
-        {/* Messages Section */}
-        <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center">
-          {messages.length > 0 ? (
-            messages.map((message) => (
-              <div
-                key={message._id as string}
-                className="w-full max-w-sm transition-transform duration-200 hover:scale-[1.02]"
+        <div className="flex flex-col space-y-12">
+          {/* Questions Section */}
+          <section>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-gray-800 border-l-4 border-orange-500 pl-3">
+                Your Specific Questions
+              </h2>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => fetchQuestions()}
+                className="text-gray-500 hover:text-orange-600"
               >
-                <MessageCard
-                  message={message}
-                  onMessageDelete={handleDeleteMessage}
-                />
-              </div>
-            ))
-          ) : (
-            <div className="text-center text-gray-500 py-10 col-span-full">
-              No messages to display.
+                <RefreshCcw className="h-4 w-4 mr-2" />
+                Refresh
+              </Button>
             </div>
-          )}
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {questions.length > 0 ? (
+                questions.map((question) => (
+                  <QuestionCard
+                    key={question._id as string}
+                    question={question}
+                    username={username}
+                    onDelete={fetchQuestions}
+                  />
+                ))
+              ) : (
+                <div className="text-center text-gray-400 py-12 col-span-full bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
+                  <p className="text-lg">No specific questions yet.</p>
+                  <p className="text-sm mt-1">Create one above to get targeted feedback!</p>
+                </div>
+              )}
+            </div>
+          </section>
+
+          <Separator />
+
+          {/* General Messages Section */}
+          <section>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-gray-800 border-l-4 border-blue-500 pl-3">
+                General Inbox
+              </h2>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={(e) => {
+                  e.preventDefault();
+                  fetchMessages(true);
+                }}
+                className="border-blue-200 text-blue-600 hover:bg-blue-50"
+              >
+                {isLoading ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <RefreshCcw className="h-4 w-4" />
+                )}
+                <span className="ml-2">Refresh Inbox</span>
+              </Button>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {messages.length > 0 ? (
+                messages.map((message) => (
+                  <div
+                    key={message._id as string}
+                    className="w-full transition-transform duration-200 hover:scale-[1.02]"
+                  >
+                    <MessageCard
+                      message={message}
+                      onMessageDelete={handleDeleteMessage}
+                    />
+                  </div>
+                ))
+              ) : (
+                <div className="text-center text-gray-400 py-12 col-span-full bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
+                  <p className="text-lg">Your inbox is empty.</p>
+                  <p className="text-sm mt-1">Share your profile link to get some messages!</p>
+                </div>
+              )}
+            </div>
+          </section>
         </div>
       </div>
     </div>
