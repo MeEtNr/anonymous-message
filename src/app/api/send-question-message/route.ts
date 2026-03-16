@@ -28,8 +28,8 @@ export async function POST(req: Request) {
     const result = await UserModel.collection.findOneAndUpdate(
       {
         $or: [
-          { "questions._id": questionId, "questions.isDeleted": { $ne: true } },
-          { "questions._id": qId, "questions.isDeleted": { $ne: true } },
+          { questions: { $elemMatch: { _id: questionId, isDeleted: { $ne: true } } } },
+          { questions: { $elemMatch: { _id: qId, isDeleted: { $ne: true } } } },
         ],
       },
       {
