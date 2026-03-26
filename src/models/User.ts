@@ -6,6 +6,10 @@ export interface Message extends Document {
 }
 
 const MessageSchema: Schema<Message> = new Schema({
+  _id: {
+    type: Schema.Types.ObjectId,
+    default: () => new mongoose.Types.ObjectId(),
+  },
   content: {
     type: String,
     required: true,
@@ -22,6 +26,7 @@ export interface Question extends Document {
   createdAt: Date;
   messages: Message[];
   isDeleted: boolean;
+  isAcceptingMessages: boolean;
 }
 
 const QuestionSchema: Schema<Question> = new Schema({
@@ -43,6 +48,10 @@ const QuestionSchema: Schema<Question> = new Schema({
     type: Boolean,
     default: false,
   },
+  isAcceptingMessages: {
+    type: Boolean,
+    default: true,
+  },
 }, { strict: false });
 
 export interface User extends Document {
@@ -56,6 +65,7 @@ export interface User extends Document {
   messages: Message[];
   questions: Question[];
   createdAt: Date;
+  role: string;
 }
 
 const UserSchema: Schema<User> = new Schema({
@@ -100,6 +110,11 @@ const UserSchema: Schema<User> = new Schema({
     type: Date,
     required: true,
     default: Date.now,
+  },
+  role: {
+    type: String,
+    enum: ["user", "admin"],
+    default: "user",
   },
 }, { strict: false });
 

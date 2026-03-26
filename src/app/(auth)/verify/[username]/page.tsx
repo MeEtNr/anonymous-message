@@ -48,7 +48,7 @@ const VerifyAccount = () => {
     <div className="flex min-h-screen items-center justify-center p-4 bg-gray-200">
       <div className="w-full max-w-md mx-4 bg-white rounded-xl shadow-md p-8 space-y-6">
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-orange-600">
+          <h1 className="text-3xl font-bold text-blue-600">
             Verify Your Account
           </h1>
           <p className="mt-2 text-gray-600">

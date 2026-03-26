@@ -30,6 +30,7 @@ export async function GET() {
     console.log("Found user in get-questions:", JSON.stringify(foundUser, null, 2));
 
     if (!foundUser) {
+      console.log("DEBUG: User not found in get-questions for ID:", userId);
       return Response.json(
         {
           success: false,
@@ -66,6 +67,8 @@ export async function GET() {
       (a: any, b: any) =>
         new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     );
+
+    console.log("DEBUG: Returning questions:", sortedQuestions.map((q: any) => ({ content: q.content, _id: q._id })));
 
     return Response.json(
       {

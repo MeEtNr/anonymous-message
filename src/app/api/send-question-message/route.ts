@@ -28,13 +28,14 @@ export async function POST(req: Request) {
     const result = await UserModel.collection.findOneAndUpdate(
       {
         $or: [
-          { questions: { $elemMatch: { _id: questionId, isDeleted: { $ne: true } } } },
-          { questions: { $elemMatch: { _id: qId, isDeleted: { $ne: true } } } },
+          { questions: { $elemMatch: { _id: questionId, isDeleted: { $ne: true }, isAcceptingMessages: { $ne: false } } } },
+          { questions: { $elemMatch: { _id: qId, isDeleted: { $ne: true }, isAcceptingMessages: { $ne: false } } } },
         ],
       },
       {
         $push: {
           "questions.$[elem].messages": {
+            _id: new mongoose.Types.ObjectId(),
             content,
             createdAt: new Date(),
           },
@@ -55,7 +56,7 @@ export async function POST(req: Request) {
       return Response.json(
         {
           success: false,
-          message: "User or Question not found",
+          message: "User or Thread not found, or Thread is not accepting messages",
         },
         {
           status: 404,

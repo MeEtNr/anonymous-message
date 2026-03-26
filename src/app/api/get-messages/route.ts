@@ -26,23 +26,34 @@ export async function GET() {
   const userId = new mongoose.Types.ObjectId(user._id);
 
   try {
-    const user = await UserModel.aggregate([
+    const userResult = await UserModel.aggregate([
       { $match: { _id: userId } },
       { $unwind: "$messages" },
       { $sort: { "messages.createdAt": -1 } },
       { $group: { _id: "$_id", messages: { $push: "$messages" } } },
     ]);
 
-    console.log(user);
-
-    if (!user || user.length === 0) {
+    if (!userResult || userResult.length === 0) {
+      // Check if user exists but just has no messages
+      const userExists = await UserModel.findById(userId);
+      if (!userExists) {
+        return Response.json(
+          {
+            success: false,
+            message: "User not found",
+          },
+          {
+            status: 404,
+          }
+        );
+      }
       return Response.json(
         {
-          success: false,
-          message: "User not found",
+          success: true,
+          messages: [],
         },
         {
-          status: 401,
+          status: 200,
         }
       );
     }
@@ -50,7 +61,7 @@ export async function GET() {
     return Response.json(
       {
         success: true,
-        messages: user[0].messages,
+        messages: userResult[0].messages,
       },
       {
         status: 200,

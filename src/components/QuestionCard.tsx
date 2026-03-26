@@ -24,6 +24,9 @@ import { ApiResponse } from "@/types/ApiResponse";
 import { Question } from "@/models/User";
 import { toast } from "sonner";
 import { Separator } from "./ui/separator";
+import { Switch } from "./ui/switch";
+import { Label } from "./ui/label";
+import { Loader2 } from "lucide-react";
 
 type QuestionCardProps = {
   question: Question;
@@ -34,13 +37,15 @@ type QuestionCardProps = {
 const QuestionCard = ({ question, username, onDelete }: QuestionCardProps) => {
   const [showMessages, setShowMessages] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isAccepting, setIsAccepting] = useState(question.isAcceptingMessages);
+  const [isToggling, setIsToggling] = useState(false);
 
   const baseUrl = `${window.location.protocol}//${window.location.host}`;
   const questionUrl = `${baseUrl}/u/${username}/${question._id}`;
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(questionUrl);
-    toast("Question link copied!");
+    toast("Thread link copied!");
   };
 
   const handleDelete = async () => {
@@ -48,19 +53,38 @@ const QuestionCard = ({ question, username, onDelete }: QuestionCardProps) => {
       setIsDeleting(true);
       const response = await axios.post(`/api/delete-question/${question._id}`);
       if (response.data.success) {
-        toast.success("Question deleted successfully");
+        toast.success("Thread deleted successfully");
         if (onDelete) onDelete();
       }
     } catch (error) {
       console.error("Error deleting question:", error);
-      toast.error("Failed to delete question");
+      toast.error("Failed to delete thread");
     } finally {
       setIsDeleting(false);
     }
   };
 
+  const handleToggleAcceptMessages = async (checked: boolean) => {
+    try {
+      setIsToggling(true);
+      const response = await axios.post<ApiResponse>("/api/accept-messages", {
+        acceptMessages: checked,
+        threadId: question._id,
+      });
+      if (response.data.success) {
+        setIsAccepting(checked);
+        toast.success(response.data.message);
+      }
+    } catch (error) {
+      console.error("Error toggling message acceptance:", error);
+      toast.error("Failed to update status");
+    } finally {
+      setIsToggling(false);
+    }
+  };
+
   return (
-    <Card className="w-full shadow-md border-orange-100">
+    <Card className="w-full shadow-md border-blue-100">
       <CardHeader className="flex flex-row items-start justify-between space-y-0">
         <div className="flex-1 pr-4">
           <CardTitle className="text-xl font-bold text-gray-800 break-words">
@@ -69,13 +93,33 @@ const QuestionCard = ({ question, username, onDelete }: QuestionCardProps) => {
           <CardDescription className="mt-1">
             Created on {new Date(question.createdAt).toLocaleDateString()}
           </CardDescription>
+          <div className="flex items-center space-x-2 mt-3">
+            <Switch
+              id={`accept-messages-${question._id}`}
+              checked={isAccepting}
+              onCheckedChange={handleToggleAcceptMessages}
+              disabled={isToggling}
+            />
+            <Label 
+              htmlFor={`accept-messages-${question._id}`}
+              className="text-xs font-medium text-slate-500 cursor-pointer"
+            >
+              {isToggling ? (
+                <Loader2 className="h-3 w-3 animate-spin" />
+              ) : isAccepting ? (
+                "Accepting Messages"
+              ) : (
+                "Paused"
+              )}
+            </Label>
+          </div>
         </div>
         <div className="flex gap-2">
           <Button
             variant="outline"
             size="icon"
             onClick={copyToClipboard}
-            title="Copy question link"
+            title="Copy thread link"
           >
             <Copy className="h-4 w-4" />
           </Button>
@@ -86,7 +130,7 @@ const QuestionCard = ({ question, username, onDelete }: QuestionCardProps) => {
                 variant="destructive"
                 size="icon"
                 disabled={isDeleting}
-                title="Delete question"
+                title="Delete thread"
               >
                 <Trash2 className="h-4 w-4" />
               </Button>
@@ -95,7 +139,7 @@ const QuestionCard = ({ question, username, onDelete }: QuestionCardProps) => {
               <AlertDialogHeader>
                 <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                 <AlertDialogDescription>
-                  This action will delete the question and its link. You won't be able to receive more responses for this question.
+                  This action will delete the thread and its link. You won't be able to receive more responses for this thread.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
@@ -111,7 +155,7 @@ const QuestionCard = ({ question, username, onDelete }: QuestionCardProps) => {
       <CardContent>
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center text-sm text-gray-600">
-            <MessageSquare className="h-4 w-4 mr-1 text-orange-500" />
+            <MessageSquare className="h-4 w-4 mr-1 text-blue-500" />
             <span>{question.messages.length} Responses</span>
           </div>
           <Button
@@ -144,7 +188,7 @@ const QuestionCard = ({ question, username, onDelete }: QuestionCardProps) => {
                 ))
             ) : (
               <p className="text-sm text-gray-500 text-center py-4">
-                No responses yet for this question.
+                No responses yet for this thread.
               </p>
             )}
           </div>

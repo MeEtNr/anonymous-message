@@ -44,6 +44,7 @@ export const authOptions: NextAuthOptions = {
           id: user.id.toString(), // now TS knows _id exists
           name: user.username,
           email: user.email,
+          role: user.role,
         };
       },
     }),
@@ -55,10 +56,21 @@ export const authOptions: NextAuthOptions = {
         // user comes from authorize(), only has id, name, email
         const dbUser = (await UserModel.findById(user.id)) as IUser | null;
         if (dbUser) {
+          // Bootstrap admin if email matches ADMIN_EMAIL
+          if (
+            process.env.ADMIN_EMAIL &&
+            dbUser.email === process.env.ADMIN_EMAIL &&
+            dbUser.role !== "admin"
+          ) {
+            dbUser.role = "admin";
+            await dbUser.save();
+          }
+
           token._id = dbUser.id.toString();
           token.isVerified = dbUser.isVerified;
           token.isAcceptingMessages = dbUser.isAcceptingMessage;
           token.username = dbUser.username;
+          token.role = dbUser.role;
         }
       }
       return token;
@@ -70,6 +82,7 @@ export const authOptions: NextAuthOptions = {
         session.user.isVerified = token.isVerified as boolean;
         session.user.isAcceptingMessages = token.isAcceptingMessages as boolean;
         session.user.username = token.username as string;
+        session.user.role = token.role as string;
       }
       return session;
     },

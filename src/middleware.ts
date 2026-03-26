@@ -7,6 +7,8 @@ export async function middleware(request: NextRequest) {
   const token = await getToken({ req: request });
   const url = request.nextUrl;
 
+  const isAdmin = token?.role === "admin";
+
   if (
     token &&
     (url.pathname.startsWith("/sign-in") ||
@@ -17,12 +19,16 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
-  if (!token && url.pathname.startsWith("/dashboard")) {
+  if (!token && (url.pathname.startsWith("/dashboard") || url.pathname.startsWith("/admin"))) {
     return NextResponse.redirect(new URL("/sign-in", request.url));
+  }
+
+  if (url.pathname.startsWith("/admin") && !isAdmin) {
+    return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 }
 
 // See "Matching Paths" below to learn more
 export const config = {
-  matcher: ["/sign-in", "/sign-up", "/", "/dashboard/:path*", "/verify/:path*"],
+  matcher: ["/sign-in", "/sign-up", "/", "/dashboard/:path*", "/verify/:path*", "/admin/:path*"],
 };

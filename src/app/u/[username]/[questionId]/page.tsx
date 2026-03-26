@@ -8,12 +8,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import axios from "axios";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Share2 } from "lucide-react";
+import { useShare } from "@/hooks/useShare";
+import ShareModal from "@/components/ShareModal";
 
 interface QuestionData {
   _id: string;
   content: string;
   username: string;
   createdAt: string;
+  isAcceptingMessages: boolean;
 }
 
 const QuestionPage = () => {
@@ -22,6 +26,7 @@ const QuestionPage = () => {
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
   const [question, setQuestion] = useState<QuestionData | null>(null);
+  const { share, isModalOpen, setIsModalOpen, shareData } = useShare();
 
   const username = params.username;
   const questionId = params.questionId;
@@ -80,19 +85,34 @@ const QuestionPage = () => {
   if (!question) {
     return (
       <div className="container mx-auto my-8 p-6 bg-white rounded max-w-4xl text-center">
-        <h1 className="text-2xl font-bold text-red-600">Question Not Found</h1>
-        <p className="mt-4">The question you are looking for does not exist or has been removed.</p>
+        <h1 className="text-2xl font-bold text-red-600">Thread Not Found</h1>
+        <p className="mt-4">The thread you are looking for does not exist or has been removed.</p>
       </div>
     );
   }
 
   return (
     <div className="container mx-auto my-8 p-6 bg-white rounded max-w-4xl">
-      <h1 className="text-3xl text-center font-bold text-black uppercase">
-        Question for <span className="text-orange-600">@{username}</span>
-      </h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold text-black uppercase">
+          Thread for <span className="text-blue-600">@{username}</span>
+        </h1>
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          className="gap-2 rounded-full text-blue-600 hover:bg-blue-50"
+          onClick={() => share({
+            title: "Send me anonymous messages 👀",
+            text: `Join the conversation on this thread: "${question.content}"\nI’ll reply honestly`,
+            url: window.location.href,
+          })}
+        >
+          <Share2 className="h-4 w-4" />
+          Share Thread
+        </Button>
+      </div>
 
-      <Card className="mt-6 border-2 border-orange-100 shadow-sm">
+      <Card className="mt-6 border-2 border-blue-100 shadow-sm">
         <CardHeader>
           <CardTitle className="text-xl text-gray-800">
             {question.content}
@@ -108,13 +128,23 @@ const QuestionPage = () => {
           className="w-full"
           value={message}
           onChange={(e) => setMessage(e.target.value)}
-          placeholder="Type your anonymous message here..."
+          placeholder={question.isAcceptingMessages ? "Type your anonymous message here..." : "This thread is currently not accepting messages"}
           rows={4}
+          disabled={!question.isAcceptingMessages}
         />
+        {!question.isAcceptingMessages && (
+          <p className="text-red-500 text-xs mt-2 font-medium">
+            This thread has been paused by the creator.
+          </p>
+        )}
       </div>
 
       <div className="flex justify-center mt-6">
-        <Button onClick={handleSubmit} className="px-8 py-2 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-lg shadow-md transition duration-300 ease-in-out" disabled={loading}>
+        <Button 
+          onClick={handleSubmit} 
+          className="px-8 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-md transition duration-300 ease-in-out" 
+          disabled={loading || !question.isAcceptingMessages}
+        >
           {loading ? "Sending..." : "Send Message Anonymously"}
         </Button>
       </div>
@@ -124,6 +154,16 @@ const QuestionPage = () => {
           Your message will be sent anonymously to @{username}. 
         </p>
       </div>
+
+      {shareData && (
+        <ShareModal
+          isOpen={isModalOpen}
+          onClose={setIsModalOpen}
+          title={shareData.title}
+          text={shareData.text}
+          url={shareData.url}
+        />
+      )}
     </div>
   );
 };

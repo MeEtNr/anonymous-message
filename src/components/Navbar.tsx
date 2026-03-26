@@ -5,11 +5,19 @@ import { useSession, signOut } from "next-auth/react";
 import { User } from "next-auth";
 import { Button } from "./ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu } from "lucide-react";
+import { Menu, ShieldCheck } from "lucide-react";
+import { usePathname } from "next/navigation";
 
 const Navbar = () => {
   const { data: session } = useSession();
   const user: User = session?.user as User;
+  const pathname = usePathname();
+
+  // Do not show the main navbar on dashboard and admin routes
+  if (pathname.startsWith("/dashboard") || pathname.startsWith("/admin")) {
+    return null;
+  }
+
   return (
     <>
       <nav className="w-full bg-gradient-to-r from-blue-900 via-blue-800 to-blue-900 text-white shadow-lg border-b border-blue-500/30">
@@ -17,7 +25,7 @@ const Navbar = () => {
           {/* Logo */}
           <Link href="/">
             <p className="text-2xl font-bold text-white tracking-wide cursor-pointer hover:text-blue-400 transition-all duration-300 transform hover:scale-105">
-              Anonymous Message
+              AnnoMessage
             </p>
           </Link>
 
@@ -31,6 +39,14 @@ const Navbar = () => {
                     {user?.username || user?.email}
                   </span>
                 </span>
+                {user?.role === "admin" && (
+                  <Link href="/admin/dashboard">
+                    <Button variant="ghost" className="text-white hover:text-blue-400 flex items-center gap-1.5 px-2">
+                       <ShieldCheck className="h-4 w-4" />
+                       <span className="text-sm">Admin</span>
+                    </Button>
+                  </Link>
+                )}
                 <Button
                   variant="ghost"
                   className="text-white border border-blue-600 hover:bg-gradient-to-r hover:from-blue-600 hover:to-blue-500 transition-all duration-300 rounded-xl shadow-md hover:shadow-blue-500/30"
@@ -78,6 +94,15 @@ const Navbar = () => {
                             {user?.username || user?.email}
                           </span>
                         </p>
+
+                        {user?.role === "admin" && (
+                           <Link href="/admin/dashboard" className="w-full mb-2 block">
+                             <Button variant="outline" className="w-full border-blue-500 text-blue-400 hover:bg-blue-900/50 flex items-center justify-center gap-2">
+                               <ShieldCheck className="h-4 w-4" />
+                               Admin Panel
+                             </Button>
+                           </Link>
+                        )}
 
                         <Button
                           variant="ghost"

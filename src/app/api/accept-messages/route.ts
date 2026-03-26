@@ -3,6 +3,7 @@ import { authOptions } from "../auth/[...nextauth]/options";
 import dbConnect from "@/lib/dbConnect";
 import UserModel from "@/models/User";
 import { User } from "next-auth";
+import mongoose from "mongoose";
 
 export async function POST(req: Request) {
   await dbConnect();
@@ -23,16 +24,29 @@ export async function POST(req: Request) {
   }
 
   const userId = user._id;
-  const { acceptMessages } = await req.json();
+  const { acceptMessages, threadId } = await req.json();
 
   try {
-    const updatedUser = await UserModel.findByIdAndUpdate(
-      userId,
-      {
-        isAcceptingMessage: acceptMessages,
-      },
-      { new: true }
-    );
+    let updatedUser;
+    if (threadId) {
+      const uId = new mongoose.Types.ObjectId(userId);
+      const qId = new mongoose.Types.ObjectId(threadId);
+      updatedUser = await UserModel.findOneAndUpdate(
+        { _id: uId, "questions._id": qId },
+        {
+          $set: { "questions.$.isAcceptingMessages": acceptMessages },
+        },
+        { new: true }
+      );
+    } else {
+      updatedUser = await UserModel.findByIdAndUpdate(
+        userId,
+        {
+          isAcceptingMessage: acceptMessages,
+        },
+        { new: true }
+      );
+    }
 
     if (!updatedUser) {
       return Response.json(

@@ -48,6 +48,7 @@ export async function POST(request: Request) {
       content,
       createdAt: new Date(),
       messages: [],
+      isAcceptingMessages: true,
     };
 
     const updatedUser = await UserModel.findOneAndUpdate(
@@ -82,7 +83,7 @@ export async function POST(request: Request) {
     return Response.json(
       {
         success: true,
-        message: "Question created successfully",
+        message: "Thread created successfully",
         question: createdQuestion,
       },
       {
@@ -94,7 +95,7 @@ export async function POST(request: Request) {
     return Response.json(
       {
         success: false,
-        message: "Error in creating question",
+        message: "Error in creating thread",
       },
       {
         status: 500,

@@ -9,71 +9,93 @@ export async function GET(
   await dbConnect();
 
   try {
-    const { questionId } = await params;
-    console.log("Fetching question with ID from NEW route:", questionId);
+    let { questionId } = await params;
+    questionId = decodeURIComponent(questionId).trim();
+    console.log("DEBUG: Target questionId:", questionId);
 
-    const user = await UserModel.findOne(
-      {
-        $or: [
-          { "questions._id": questionId },
-          { "questions._id": new mongoose.Types.ObjectId(questionId) },
-        ],
-      },
-      { "questions.$": 1, username: 1 }
-    ).lean();
+    if (!questionId) {
+      return Response.json({ success: false, message: "Question ID is missing" }, { status: 400 });
+    }
 
-    console.log("User found in NEW route:", JSON.stringify(user, null, 2));
+    const isPossiblyValidId = mongoose.Types.ObjectId.isValid(questionId);
+    const idAsObjectId = isPossiblyValidId ? new mongoose.Types.ObjectId(questionId) : null;
 
-    if (!user || !user.questions || user.questions.length === 0) {
-      return Response.json(
-        {
-          success: false,
-          message: "Question not found",
-        },
-        {
-          status: 404,
+    console.log("DEBUG: Querying for ID formats:", { questionId, idAsObjectId });
+
+    // Method 1: findOne with positional operator
+    const user = await UserModel.findOne({
+      "questions._id": idAsObjectId || questionId
+    }, { "questions.$": 1, username: 1 }).lean();
+
+    console.log("DEBUG: User found via findOne:", !!user);
+
+    if (!user) {
+      // Method 2: Fallback to aggregation if findOne fails
+      console.log("DEBUG: findOne failed, trying aggregation...");
+      const aggregationResult = await UserModel.aggregate([
+        { $match: { "questions._id": idAsObjectId || questionId } },
+        { $unwind: "$questions" },
+        { $match: { "questions._id": idAsObjectId || questionId } },
+        { $project: { question: "$questions", username: 1 } }
+      ]);
+      
+      if (aggregationResult && aggregationResult.length > 0) {
+        console.log("DEBUG: Found via aggregation fallback");
+        const { question, username } = aggregationResult[0];
+        return handleQuestionResponse(question, username);
+      }
+
+      // Method 3: Final desperate fallback - search for any user and check in memory
+      console.log("DEBUG: Aggregation failed, trying manual search...");
+      // This is a last resort to see if the ID exists at all
+      const allUsers = await UserModel.find({ "questions": { $exists: true, $ne: [] } }, { questions: 1, username: 1 }).lean();
+      for (const u of allUsers) {
+        const q = u.questions.find((qi: any) => qi._id.toString() === questionId);
+        if (q) {
+          console.log("DEBUG: MANUALLY FOUND in user:", u.username);
+          return handleQuestionResponse(q, u.username);
         }
-      );
+      }
+
+      console.log("DEBUG: All search methods failed for ID:", questionId);
+      return Response.json({ 
+        success: false, 
+        message: "Question not found. Checked all search methods." 
+      }, { status: 404 });
     }
 
     const question = (user.questions as any)[0];
+    return handleQuestionResponse(question, (user as any).username);
 
-    if (question.isDeleted) {
-      return Response.json(
-        {
-          success: false,
-          message: "Question not found",
-        },
-        {
-          status: 404,
-        }
-      );
-    }
-
-    return Response.json(
-      {
-        success: true,
-        question: {
-          _id: question._id,
-          content: question.content,
-          createdAt: question.createdAt,
-          username: (user as any).username,
-        },
-      },
-      {
-        status: 200,
-      }
-    );
   } catch (error) {
-    console.log("Failed to get question in NEW route", error);
-    return Response.json(
-      {
-        success: false,
-        message: "Error in getting question",
-      },
-      {
-        status: 500,
-      }
-    );
+    console.log("CRITICAL: Failed to get question", error);
+    return Response.json({ success: false, message: "Internal server error" }, { status: 500 });
   }
+}
+
+function handleQuestionResponse(question: any, username: string) {
+  if (question.isDeleted) {
+    console.log("DEBUG: Question is deleted:", question._id);
+    return Response.json({ success: false, message: "This question has been deleted" }, { status: 404 });
+  }
+
+  return Response.json(
+    {
+      success: true,
+      question: {
+        _id: question._id,
+        content: question.content,
+        createdAt: question.createdAt,
+        messages: (question.messages || [])
+          .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+          .map((m: any) => ({
+             ...m,
+             _id: m._id || "MISSING_ID" // Fallback to help identify issues
+          })),
+        username: username,
+        isAcceptingMessages: question.isAcceptingMessages ?? true,
+      },
+    },
+    { status: 200 }
+  );
 }

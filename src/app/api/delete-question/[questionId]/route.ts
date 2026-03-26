@@ -58,7 +58,7 @@ export async function POST(
       return Response.json(
         {
           success: false,
-          message: "User or Question not found",
+          message: "User or Thread not found",
         },
         {
           status: 404,
@@ -69,7 +69,7 @@ export async function POST(
     return Response.json(
       {
         success: true,
-        message: "Question deleted successfully",
+        message: "Thread deleted successfully",
       },
       {
         status: 200,
@@ -80,7 +80,7 @@ export async function POST(
     return Response.json(
       {
         success: false,
-        message: "Error in deleting question",
+        message: "Error in deleting thread",
       },
       {
         status: 500,
