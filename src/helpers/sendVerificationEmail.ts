@@ -9,13 +9,18 @@ export async function sendVerificationEmail(
   verifyCode: string
 ): Promise<ApiResponse> {
   try {
+    if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
+      console.error("SMTP_USER or SMTP_PASS is not defined in the environment variables");
+      return { success: false, message: "Server configuration error: Email credentials missing" };
+    }
+
     const transporter = nodemailer.createTransport({
       host: "smtp.gmail.com",
       port: 587,
       secure: false, // STARTTLS
       auth: {
-        user: process.env.SMTP_USER!,
-        pass: process.env.SMTP_PASS!,
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
       },
     });
 
