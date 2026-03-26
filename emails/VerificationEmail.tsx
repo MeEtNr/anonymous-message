@@ -18,7 +18,7 @@ interface VerificationEmailProps {
 export default function VerificationEmail({
   username,
   otp,
-  appName = "anonymous_message",
+  appName = "AnnoMessage",
 }: VerificationEmailProps) {
   return (
     <Html>
