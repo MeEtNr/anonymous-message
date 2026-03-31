@@ -306,6 +306,18 @@ export default function Sidebar({ className }: SidebarProps) {
   return (
     <>
       <style>{`
+        @keyframes shimmer {
+          0% { background-position: -200% center; }
+          100% { background-position: 200% center; }
+        }
+        .shimmer-text, .sidebar-shimmer {
+          background: linear-gradient(90deg, #a78bfa 0%, #818cf8 25%, #38bdf8 50%, #818cf8 75%, #a78bfa 100%);
+          background-size: 200% auto;
+          -webkit-background-clip: text;
+          background-clip: text;
+          -webkit-text-fill-color: transparent;
+          animation: shimmer 4s linear infinite;
+        }
         .sidebar-divider {
           height: 1px;
           background: linear-gradient(90deg, transparent, rgba(139,92,246,0.25), transparent);
@@ -441,7 +453,7 @@ export default function Sidebar({ className }: SidebarProps) {
           >
             A
           </div>
-          <span className="sidebar-shimmer font-black text-base tracking-tight">
+          <span className="sidebar-shimmer font-black text-lg tracking-tight leading-none">
             AnnoMessage
           </span>
         </div>
