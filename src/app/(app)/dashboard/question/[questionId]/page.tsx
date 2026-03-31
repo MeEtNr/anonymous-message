@@ -139,58 +139,69 @@ export default function QuestionDetailPage() {
   };
 
   return (
-    <div className="p-6 max-w-5xl mx-auto pb-20">
-      <div className="mb-8">
+    <div className="p-6 max-w-5xl mx-auto space-y-10">
+      {/* ── TOP NAV & HEADER ── */}
+      <div className="opacity-0 animate-[slideUp_0.8s_0.1s_ease_both]">
         <Button 
           variant="ghost" 
           size="sm" 
-          className="mb-4 text-slate-500"
+          className="mb-6 h-10 px-4 rounded-xl bg-white/5 border border-white/5 text-slate-400 hover:bg-white/10 hover:text-white transition-all group"
           onClick={() => router.push("/dashboard")}
         >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back
+          <ArrowLeft className="h-4 w-4 mr-2 group-hover:-translate-x-1 transition-transform" />
+          Back to Dashboard
         </Button>
+        
         <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
           <div className="flex-1">
-            <h1 className="text-3xl font-bold text-slate-900 mb-2">
+            <h1 className="text-4xl md:text-5xl font-black text-white tracking-tighter mb-4 leading-tight">
               {question.content}
             </h1>
-            <div className="flex flex-wrap items-center gap-4 text-sm text-slate-500">
-              <span className="flex items-center gap-1">
-                <Calendar className="h-4 w-4" />
+            <div className="flex flex-wrap items-center gap-5 text-sm font-medium text-slate-500">
+              <span className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/5">
+                <Calendar className="h-4 w-4 text-violet-400" />
                 {new Date(question.createdAt).toLocaleDateString()}
               </span>
-              <span className="flex items-center gap-1">
-                <MessageSquare className="h-4 w-4" />
+              <span className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/5">
+                <MessageSquare className="h-4 w-4 text-sky-400" />
                 {(question.messages || []).length} responses
               </span>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <Button onClick={handleShareQuestion} variant="outline" className="gap-2">
+          <div className="flex items-center gap-3">
+            <Button 
+              onClick={handleShareQuestion} 
+              variant="outline" 
+              className="gap-2 h-12 px-6 rounded-2xl bg-white/5 border-white/10 text-slate-200 hover:bg-violet-500/10 hover:border-violet-500/40 hover:text-white transition-all shadow-xl"
+            >
               <Share2 className="h-4 w-4" />
-              Share Link
+              Share Thread
             </Button>
             
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button variant="destructive" size="icon" disabled={isDeleting}>
+                <Button 
+                  variant="destructive" 
+                  size="icon" 
+                  disabled={isDeleting}
+                  className="h-12 w-12 rounded-2xl bg-rose-500/10 hover:bg-rose-500 text-rose-500 hover:text-white border border-rose-500/20 hover:border-rose-500 transition-all shadow-xl"
+                >
                   {isDeleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
                 </Button>
               </AlertDialogTrigger>
-              <AlertDialogContent>
+              <AlertDialogContent className="glass-card border-white/10 bg-slate-950/90 backdrop-blur-xl rounded-[2rem]">
                 <AlertDialogHeader>
-                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                  <AlertDialogDescription>
+                  <AlertDialogTitle className="text-white font-bold">Delete Thread</AlertDialogTitle>
+                  <AlertDialogDescription className="text-slate-400">
                     This will permanently delete this question and all of its responses.
                     This action cannot be undone.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={handleDeleteQuestion} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                    Delete
+                  <AlertDialogCancel className="rounded-xl bg-white/5 border-white/10 text-slate-300 hover:bg-white/10 hover:text-white transition-colors">Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleDeleteQuestion} className="rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-semibold transition-all">
+                    Delete Permanently
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
@@ -199,19 +210,25 @@ export default function QuestionDetailPage() {
         </div>
       </div>
 
+      {/* ── STATUS BAR ── */}
       <div className={cn(
-        "flex items-center justify-between p-4 rounded-xl border mb-8",
+        "flex items-center justify-between p-6 rounded-[2rem] border transition-all duration-500 opacity-0 animate-[slideUp_0.8s_0.2s_ease_both] shadow-2xl",
         question.isAcceptingMessages 
-          ? "bg-green-50 border-green-100 text-green-700" 
-          : "bg-slate-50 border-slate-200 text-slate-500"
+          ? "bg-emerald-500/10 border-emerald-500/20 shadow-emerald-950/20" 
+          : "bg-white/5 border-white/10"
       )}>
-        <div className="flex items-center gap-3">
-          <ShieldCheck className={cn("h-5 w-5", question.isAcceptingMessages ? "text-green-600" : "text-slate-400")} />
+        <div className="flex items-center gap-4">
+          <div className={cn(
+            "p-3 rounded-2xl",
+            question.isAcceptingMessages ? "bg-emerald-500/20 text-emerald-400" : "bg-white/5 text-slate-500"
+          )}>
+            <ShieldCheck className="h-6 w-6" />
+          </div>
           <div>
-            <p className="text-sm font-bold uppercase tracking-wider">
-              {question.isAcceptingMessages ? "Accepting Messages" : "Paused"}
+            <p className="text-sm font-black uppercase tracking-[0.2em] text-white">
+              {question.isAcceptingMessages ? "Accepting Responses" : "Thread Paused"}
             </p>
-            <p className="text-xs opacity-80">
+            <p className="text-xs text-slate-400 mt-1 font-light">
               {question.isAcceptingMessages 
                 ? "Anyone with the link can send you anonymous responses." 
                 : "No new responses can be sent to this thread."}
@@ -223,23 +240,33 @@ export default function QuestionDetailPage() {
             checked={question.isAcceptingMessages} 
             onCheckedChange={handleToggleAcceptMessages}
             disabled={isToggling}
+            className="data-[state=checked]:bg-emerald-500"
           />
         </div>
       </div>
 
-      <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 mb-10 flex items-center justify-between">
-        <div className="flex flex-col gap-1">
-          <span className="text-xs font-semibold text-blue-600 uppercase">Public Link</span>
-          <code className="text-sm text-blue-800 break-all">{publicUrl}</code>
+      {/* ── PUBLIC LINK BANNER ── */}
+      <div className="glass-card rounded-[2rem] p-6 flex flex-col md:flex-row items-center justify-between gap-6 opacity-0 animate-[slideUp_0.8s_0.3s_ease_both]">
+        <div className="flex flex-col gap-1.5 overflow-hidden w-full">
+          <span className="text-xs font-black text-violet-400 uppercase tracking-widest">Public Sharing Link</span>
+          <code className="text-sm text-violet-200/70 font-mono break-all bg-white/5 px-4 py-2 rounded-xl border border-white/5">{publicUrl}</code>
         </div>
-        <Button variant="ghost" size="icon" onClick={() => window.open(publicUrl, '_blank')} className="text-blue-600">
-          <ExternalLink className="h-4 w-4" />
+        <Button 
+          variant="secondary" 
+          size="icon" 
+          onClick={() => window.open(publicUrl, '_blank')} 
+          className="h-12 w-12 rounded-2xl bg-white/5 hover:bg-violet-500/20 text-violet-400 border border-white/5 shrink-0 transition-all"
+        >
+          <ExternalLink className="h-5 w-5" />
         </Button>
       </div>
 
-      <div className="space-y-6">
-        <h2 className="text-xl font-semibold text-slate-900">Responses</h2>
-        <Separator />
+      {/* ── RESPONSES SECTION ── */}
+      <div className="space-y-8 opacity-0 animate-[fadeInScale_1s_0.4s_ease_both]">
+        <div className="flex items-center gap-4">
+          <h2 className="text-3xl font-black text-white tracking-tight">Responses</h2>
+          <div className="h-px flex-1 bg-gradient-to-r from-violet-500/30 to-transparent" />
+        </div>
         
         {question.messages && question.messages.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -253,10 +280,14 @@ export default function QuestionDetailPage() {
             ))}
           </div>
         ) : (
-          <div className="text-center py-20 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200">
-            <MessageSquare className="h-12 w-12 text-slate-300 mx-auto mb-4" />
-            <p className="text-lg font-medium text-slate-900">No responses yet</p>
-            <p className="text-slate-500 mt-1">Share the link above to start receiving answers!</p>
+          <div className="text-center py-24 glass-card rounded-[2.5rem] border-white/5 border-dashed">
+            <div className="w-20 h-20 bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 border-dashed rounded-full flex items-center justify-center mx-auto mb-6">
+              <MessageSquare className="h-8 w-8 text-slate-600" />
+            </div>
+            <h3 className="text-2xl font-black text-white mb-2 tracking-tight">No responses yet</h3>
+            <p className="text-slate-500 mt-1 max-w-sm mx-auto font-light leading-relaxed">
+              Share the thread link above to start collecting unfiltered anonymous feedback!
+            </p>
           </div>
         )}
       </div>

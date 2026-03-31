@@ -113,93 +113,109 @@ export default function UserDashboard() {
   };
 
   return (
-    <div className="p-6 max-w-5xl mx-auto pb-20">
-      <div className="flex flex-col items-start md:flex-row md:items-center justify-between gap-6 mb-10">
+    <div className="p-6 max-w-5xl mx-auto space-y-10">
+      {/* ── HEADER ── */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 opacity-0 animate-[slideUp_0.8s_0.1s_ease_both]">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900 flex items-center gap-2">
-            <LayoutDashboard className="h-8 w-8 text-blue-600" />
-            Dashboard
+          <h1 className="text-4xl md:text-5xl font-black text-white tracking-tighter flex items-center gap-3">
+            <LayoutDashboard className="h-10 w-10 text-violet-400" />
+            My <span className="shimmer-text">Dashboard</span>
           </h1>
-          {/* <p className="text-slate-500 mt-1">
-            Welcome back, {username}! Manage your anonymous conversations here.
-          </p> */}
         </div>
         
-        <div className="flex items-center gap-3 bg-white border border-slate-200 p-2 pr-4 rounded-full shadow-sm">
+        <div className="badge-pill px-5 py-3 rounded-2xl flex items-center gap-4 border-white/10 shadow-xl">
           <div className={cn(
-            "p-2 rounded-full",
-            acceptMessages ? "bg-green-100 text-green-600" : "bg-slate-100 text-slate-400"
+            "h-3 w-3 rounded-full relative",
+            acceptMessages ? "bg-emerald-500 shadow-[0_0_12px_rgba(16,185,129,0.5)]" : "bg-slate-500"
           )}>
-            <ShieldCheck className="h-5 w-5" />
+            {acceptMessages && <span className="absolute inset-0 rounded-full bg-emerald-500 animate-ping opacity-75" />}
           </div>
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-medium text-slate-700">
-              {acceptMessages ? "Accepting Messages" : "Direct Inbox Paused"}
+          <div className="flex items-center gap-3">
+            <span className="text-sm font-semibold text-slate-200 tracking-wide uppercase">
+              {acceptMessages ? "Accepting Messages" : "Inbox Paused"}
             </span>
             <Switch
               checked={acceptMessages}
               onCheckedChange={handleSwitchChange}
               disabled={isSwitchLoading}
+              className="data-[state=checked]:bg-violet-600"
             />
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Profile Link Section */}
-        <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm flex flex-col">
-          <div className="mb-6">
-            <div className="h-12 w-12 bg-blue-100 rounded-xl flex items-center justify-center text-blue-600 mb-4">
-              <Zap className="h-6 w-6" />
+        <div className="glass-card p-8 rounded-[2rem] flex flex-col opacity-0 animate-[slideUp_0.8s_0.2s_ease_both]">
+          <div className="mb-8">
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-500/20 to-purple-500/10 border border-violet-500/30 flex items-center justify-center text-2xl mb-6 shadow-lg shadow-violet-900/20">
+              <Zap className="h-7 w-7 text-violet-400" />
             </div>
-            <h2 className="text-xl font-bold text-slate-900 mb-2">
+            <h2 className="text-2xl font-black text-white mb-3 tracking-tight">
               Share Your Profile
             </h2>
-            <p className="text-slate-500">
+            <p className="text-slate-400 leading-relaxed font-light">
               Anyone with this link can send you an anonymous message directly to your general inbox.
-            </p>
-          </div>
-          <div className="mt-auto space-y-3">
-             <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-lg p-2 overflow-hidden">
-                <code className="text-xs text-slate-600 truncate flex-1">{profileUrl}</code>
-                <Button onClick={copyToClipboard} size="sm" variant="ghost" className="h-8 px-2 text-blue-600">
-                   <Copy className="h-4 w-4" />
-                </Button>
-             </div>
-             <Button onClick={handleShareProfile} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold gap-2">
-                <Share2 className="h-4 w-4" />
-                Share My Profile Link
-             </Button>
-          </div>
-        </div>
-
-        {/* New Question Section - The ChatGPT-like CTA */}
-        <div className="bg-slate-900 p-8 rounded-2xl shadow-xl flex flex-col text-white">
-          <div className="mb-6">
-             <div className="h-12 w-12 bg-white/10 rounded-xl flex items-center justify-center text-white mb-4">
-              <PlusCircle className="h-6 w-6" />
-            </div>
-            <h2 className="text-xl font-bold mb-2">
-              Start a New Thread
-            </h2>
-            <p className="text-slate-400">
-              Create a dedicated thread for a specific topic to get focused, anonymous feedback.
             </p>
           </div>
           
           <div className="mt-auto space-y-4">
+             <div className="flex items-center gap-3 bg-white/5 border border-white/10 rounded-2xl p-3 pl-4 overflow-hidden group hover:border-violet-500/40 transition-colors">
+                <code className="text-xs text-violet-300 truncate flex-1 font-mono">{profileUrl}</code>
+                <Button 
+                  onClick={copyToClipboard} 
+                  size="icon" 
+                  variant="secondary" 
+                  className="h-10 w-10 rounded-xl bg-white/10 hover:bg-violet-500/20 text-violet-400 border-none shrink-0"
+                >
+                   <Copy className="h-4.5 w-4.5" />
+                </Button>
+             </div>
+             <Button 
+              onClick={handleShareProfile} 
+              className="cta-btn w-full h-14 rounded-2xl text-white font-bold text-lg tracking-wide shadow-2xl gap-2 border-none"
+             >
+                <Share2 className="h-5 w-5" />
+                Share Profile Link
+             </Button>
+          </div>
+        </div>
+
+        {/* New Question Section */}
+        <div className="glass-card p-8 rounded-[2rem] flex flex-col opacity-0 animate-[slideUp_0.8s_0.3s_ease_both] relative overflow-hidden">
+          {/* Subtle accent glow */}
+          <div className="absolute -top-24 -right-24 w-48 h-48 bg-violet-600/10 blur-[80px] rounded-full pointer-events-none" />
+          
+          <div className="mb-8 relative z-10">
+             <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-sky-500/20 to-cyan-500/10 border border-sky-500/30 flex items-center justify-center text-2xl mb-6 shadow-lg shadow-sky-900/20">
+              <PlusCircle className="h-7 w-7 text-sky-400" />
+            </div>
+            <h2 className="text-2xl font-black text-white mb-3 tracking-tight">
+              Start a New Thread
+            </h2>
+            <p className="text-slate-400 leading-relaxed font-light">
+              Create a dedicated thread for a specific topic to get focused, anonymous feedback.
+            </p>
+          </div>
+          
+          <div className="mt-auto space-y-5 relative z-10">
             <textarea
               placeholder="e.g., What's my best quality?"
               value={newQuestionContent}
               onChange={(e) => setNewQuestionContent(e.target.value)}
-              className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white placeholder:text-slate-500 focus:ring-2 focus:ring-blue-500 outline-none resize-none min-h-[100px]"
+              className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white placeholder:text-slate-600 focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500/50 outline-none resize-none min-h-[120px] transition-all text-base"
             />
             <Button 
               onClick={handleCreateQuestion} 
-              className="w-full bg-white text-slate-900 hover:bg-slate-100 font-bold py-6"
+              className="cta-btn w-full h-14 rounded-2xl text-white font-bold text-lg tracking-wide shadow-2xl border-none"
+              style={{ background: "linear-gradient(135deg, #4f46e5 0%, #0ea5e9 100%)" }}
               disabled={isCreatingThread}
             >
-              {isCreatingThread ? <Loader2 className="animate-spin h-5 w-5" /> : "Create Thread Link"}
+              {isCreatingThread ? (
+                <Loader2 className="animate-spin h-6 w-6" />
+              ) : (
+                "Create Thread Link →"
+              )}
             </Button>
           </div>
         </div>

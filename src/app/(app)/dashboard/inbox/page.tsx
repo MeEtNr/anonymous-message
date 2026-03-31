@@ -76,34 +76,36 @@ export default function InboxPage() {
   if (!session?.user) return null;
 
   return (
-    <div className="p-6 max-w-5xl mx-auto pb-20">
-      <div className="flex flex-col items-start md:flex-row md:items-center justify-between gap-6 mb-8">
+    <div className="p-6 max-w-5xl mx-auto space-y-10">
+      {/* ── HEADER ── */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 opacity-0 animate-[slideUp_0.8s_0.1s_ease_both]">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900 flex items-center gap-2">
-            <InboxIcon className="h-8 w-8 text-blue-600" />
-            General Inbox
+          <h1 className="text-4xl md:text-5xl font-black text-white tracking-tighter flex items-center gap-3">
+            <InboxIcon className="h-10 w-10 text-violet-400" />
+            General <span className="shimmer-text">Inbox</span>
           </h1>
-          <p className="text-slate-500 mt-1">
+          <p className="text-slate-400 mt-2 font-light max-w-md">
             Anonymous messages received through your main profile link.
           </p>
         </div>
         
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
-          <div className="flex items-center gap-3 bg-white border border-slate-200 p-2 pr-4 rounded-full shadow-sm w-fit">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+          <div className="badge-pill px-5 py-2.5 rounded-2xl flex items-center gap-4 border-white/10 shadow-xl">
             <div className={cn(
-              "p-2 rounded-full",
-              acceptMessages ? "bg-green-100 text-green-600" : "bg-slate-100 text-slate-400"
+              "h-3 w-3 rounded-full relative",
+              acceptMessages ? "bg-emerald-500 shadow-[0_0_12px_rgba(16,185,129,0.5)]" : "bg-slate-500"
             )}>
-              <ShieldCheck className="h-5 w-5" />
+              {acceptMessages && <span className="absolute inset-0 rounded-full bg-emerald-500 animate-ping opacity-75" />}
             </div>
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-slate-700">
-                {acceptMessages ? "Accepting Messages" : "Direct Inbox Paused"}
+            <div className="flex items-center gap-3">
+              <span className="text-xs font-bold text-slate-200 tracking-wider uppercase">
+                {acceptMessages ? "Accepting" : "Paused"}
               </span>
               <Switch
                 checked={acceptMessages}
                 onCheckedChange={handleSwitchChange}
                 disabled={isSwitchLoading}
+                className="data-[state=checked]:bg-violet-600 scale-90"
               />
             </div>
           </div>
@@ -112,7 +114,7 @@ export default function InboxPage() {
             variant="outline"
             onClick={() => fetchMessages(true)}
             disabled={isLoading}
-            className="gap-2 h-[52px] px-6 rounded-full border-slate-200 hover:bg-slate-50 shadow-sm"
+            className="gap-2 h-12 px-6 rounded-2xl bg-white/5 border-white/10 text-slate-200 hover:bg-violet-500/10 hover:border-violet-500/40 hover:text-white transition-all shadow-xl"
           >
             {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCcw className="h-4 w-4" />}
             Refresh
@@ -120,12 +122,15 @@ export default function InboxPage() {
         </div>
       </div>
 
-      <Separator className="mb-8" />
+      <div className="h-px w-full bg-gradient-to-r from-transparent via-violet-500/30 to-transparent mb-10 opacity-50" />
 
       {isLoading && messages.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20">
-          <Loader2 className="h-10 w-10 animate-spin text-blue-600 mb-4" />
-          <p className="text-slate-500">Loading your messages...</p>
+        <div className="flex flex-col items-center justify-center py-32 opacity-0 animate-[fadeInScale_0.6s_ease_both]">
+          <div className="relative mb-6">
+            <div className="absolute inset-0 rounded-full bg-violet-500/20 blur-2xl animate-pulse" />
+            <Loader2 className="h-12 w-12 animate-spin text-violet-500 relative z-10" />
+          </div>
+          <p className="text-slate-400 font-medium tracking-wide">Retrieving your messages...</p>
         </div>
       ) : messages.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -138,10 +143,14 @@ export default function InboxPage() {
           ))}
         </div>
       ) : (
-        <div className="text-center py-20 bg-white rounded-2xl border-2 border-dashed border-slate-200">
-          <InboxIcon className="h-12 w-12 text-slate-300 mx-auto mb-4" />
-          <p className="text-lg font-medium text-slate-900">Your inbox is empty</p>
-          <p className="text-slate-500 mt-1">Share your profile link to receive anonymous messages!</p>
+        <div className="text-center py-24 glass-card rounded-[2.5rem] border-white/5 opacity-0 animate-[fadeInScale_0.7s_0.2s_ease_both]">
+          <div className="w-20 h-20 bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 rounded-full flex items-center justify-center mx-auto mb-6 shadow-2xl">
+            <InboxIcon className="h-8 w-8 text-slate-500" />
+          </div>
+          <h3 className="text-2xl font-black text-white mb-2 tracking-tight">Your inbox is empty</h3>
+          <p className="text-slate-500 mt-1 max-w-sm mx-auto font-light leading-relaxed">
+            Share your profile link to start receiving anonymous messages from around the world!
+          </p>
         </div>
       )}
     </div>

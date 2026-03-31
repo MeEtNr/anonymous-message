@@ -62,51 +62,60 @@ const MessageCard = ({ message, onMessageDelete, questionId }: MessageCardProps)
     }
   };
   return (
-    <Card className="relative">
+    <div className="message-card glass-card rounded-[2rem] p-7 group relative opacity-0 animate-[fadeInScale_0.5s_ease_both]">
       <AlertDialog>
         <AlertDialogTrigger asChild>
           <Button
-            className="absolute top-4 right-4 h-10 w-10 p-2"
-            variant="destructive"
+            className="absolute top-4 right-4 h-10 w-10 p-2 rounded-xl bg-white/5 hover:bg-rose-500/20 text-slate-500 hover:text-rose-400 border-none transition-all duration-300"
+            variant="ghost"
             disabled={isDeleting}
           >
-            {isDeleting ? <Loader2 className="w-5 h-5 animate-spin" /> : <X className="w-6 h-6" />}
+            {isDeleting ? <Loader2 className="w-5 h-5 animate-spin" /> : <X className="w-5 h-5" />}
           </Button>
         </AlertDialogTrigger>
-        <AlertDialogContent>
+        <AlertDialogContent className="glass-card border-white/10 bg-slate-950/90 backdrop-blur-xl rounded-[2rem]">
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-            <AlertDialogDescription>
+            <AlertDialogTitle className="text-white font-bold">Delete Message</AlertDialogTitle>
+            <AlertDialogDescription className="text-slate-400">
               This action cannot be undone. This will permanently delete your
-              message.
+              message from the platform.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel className="rounded-xl bg-white/5 border-white/10 text-slate-300 hover:bg-white/10 hover:text-white transition-colors">Cancel</AlertDialogCancel>
             <AlertDialogAction
-              className="bg-destructive"
+              className="rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-semibold transition-all"
               onClick={handleDeleteConfirm}
             >
-              Continue
+              Confirm Delete
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
 
-      <CardHeader className="pr-16">
-        {" "}
-        {/* <--- Add padding-right here */}
-        <CardTitle className="text-xl break-words overflow-hidden text-ellipsis">
+      <div className="pr-12">
+        <p className="text-lg font-medium text-slate-100 leading-relaxed mb-6 break-words italic">
           {message.content}
-        </CardTitle>
-        <CardDescription>
-          {new Date(message.createdAt).toLocaleString("en-IN", {
-            dateStyle: "medium",
-            timeStyle: "short",
-          })}
-        </CardDescription>
-      </CardHeader>
-    </Card>
+        </p>
+        
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-500/20 to-indigo-500/10 border border-violet-500/20 flex items-center justify-center text-sm font-black text-violet-400 shrink-0 shadow-lg shadow-violet-950/10 transition-all">
+            ?
+          </div>
+          <div className="flex flex-col min-w-0">
+            <span className="text-xs font-bold text-slate-300">
+               {new Date(message.createdAt).toLocaleString("en-IN", {
+                 dateStyle: "medium",
+                 timeStyle: "short",
+               })}
+            </span>
+            <span className="text-[10px] text-slate-600 font-extrabold uppercase tracking-widest opacity-60">
+               Received
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 

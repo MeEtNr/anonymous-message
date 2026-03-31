@@ -85,178 +85,182 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="p-8 max-w-7xl mx-auto space-y-10">
-      <div className="flex flex-col gap-2">
-        <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight">Admin Insights</h1>
-        <p className="text-slate-500 flex items-center gap-2">
-          Monitor platform growth and user engagement.
+    <div className="p-6 md:p-10 max-w-7xl mx-auto space-y-12">
+      {/* ── HEADER ── */}
+      <div className="flex flex-col gap-3 opacity-0 animate-[slideUp_0.8s_0.1s_ease_both]">
+        <h1 className="text-4xl md:text-6xl font-black text-white tracking-tight leading-tight">
+          Admin <span className="shimmer-text">Insights</span>
+        </h1>
+        <p className="text-slate-400 font-light flex items-center gap-2 text-lg">
+          Monitor platform growth and user engagement with real-time feedback metrics.
         </p>
       </div>
 
-      {/* Stats Cards */}
+      {/* ── STATS GRID ── */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {[
-          { title: "Total Users", value: stats?.totalUsers || 0, icon: Users, color: "blue" },
-          { title: "Verified Users", value: stats?.verifiedUsers || 0, icon: UserCheck, color: "green" },
+          { title: "Total Users", value: stats?.totalUsers || 0, icon: Users, color: "#8b5cf6" },
+          { title: "Verified Users", value: stats?.verifiedUsers || 0, icon: UserCheck, color: "#10b981" },
           { 
             title: "New Signups (30d)", 
             value: stats?.signupTrends.reduce((acc, curr) => acc + curr.count, 0) || 0, 
             icon: TrendingUp, 
-            color: "purple" 
+            color: "#0ea5e9" 
           },
         ].map((item, idx) => (
-          <Card key={idx} className="border-none shadow-[0_8px_30px_rgb(0,0,0,0.04)] bg-white overflow-hidden group hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-all duration-300">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-bold text-slate-400 uppercase tracking-wider">{item.title}</CardTitle>
-              <div className={cn(
-                "p-2 rounded-xl transition-colors",
-                item.color === 'blue' ? "bg-blue-50 text-blue-600" :
-                item.color === 'green' ? "bg-green-50 text-green-600" :
-                "bg-purple-50 text-purple-600"
-              )}>
-                <item.icon className="h-5 w-5" />
+          <div key={idx} className="glass-card p-8 rounded-[2rem] relative overflow-hidden group opacity-0 animate-[slideUp_0.8s_0.2s_ease_both]">
+             {/* Subtle Glow */}
+            <div className="absolute -top-12 -right-12 w-24 h-24 blur-[60px] rounded-full transition-opacity opacity-20 group-hover:opacity-40" style={{ backgroundColor: item.color }} />
+            
+            <div className="flex flex-row items-center justify-between mb-8">
+              <span className="text-sm font-black text-slate-500 uppercase tracking-[0.2em]">{item.title}</span>
+              <div 
+                className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg border transition-all duration-300" 
+                style={{ 
+                  backgroundColor: `${item.color}15`, 
+                  borderColor: `${item.color}30`,
+                  color: item.color,
+                  boxShadow: `0 8px 16px -4px ${item.color}30`
+                }}
+              >
+                <item.icon className="h-6 w-6" />
               </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-4xl font-black text-slate-900">{item.value}</div>
-            </CardContent>
-            <div className={cn(
-              "h-1.5 w-full",
-              item.color === 'blue' ? "bg-blue-500" :
-              item.color === 'green' ? "bg-green-500" :
-              "bg-purple-500"
-            )} />
-          </Card>
+            </div>
+            
+            <div className="flex items-end gap-3">
+              <span className="text-5xl font-black text-white tracking-tighter">{item.value}</span>
+              <div className="text-xs font-bold text-slate-500 mb-2 uppercase tracking-wide">Members</div>
+            </div>
+          </div>
         ))}
       </div>
 
-      {/* Graph Area */}
-      <Card className="border-none shadow-[0_8px_30px_rgb(0,0,0,0.04)] bg-white overflow-hidden p-2">
-        <CardHeader className="px-6 pt-6">
-          <CardTitle className="text-xl font-bold text-slate-900">User Growth Trends</CardTitle>
-          <CardDescription>Visualizing daily registrations for the past month</CardDescription>
-        </CardHeader>
-        <CardContent className="h-[350px] w-full mt-4">
+      {/* ── GRAPH AREA ── */}
+      <div className="glass-card p-4 rounded-[2.5rem] opacity-0 animate-[slideUp_0.8s_0.3s_ease_both]">
+        <div className="px-8 pt-8 pb-4">
+          <h2 className="text-2xl font-black text-white tracking-tight">Growth Analytics</h2>
+          <p className="text-slate-500 text-sm font-light mt-1">Platform-wide registration trends for the last 30 days</p>
+        </div>
+        <div className="h-[400px] w-full mt-6 px-4">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={stats?.signupTrends} margin={{ top: 20, right: 30, left: 0, bottom: 20 }}>
               <defs>
-                <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#2563eb" stopOpacity={0.1}/>
-                  <stop offset="95%" stopColor="#2563eb" stopOpacity={0}/>
+                <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3}/>
+                  <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0}/>
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
               <XAxis 
                 dataKey="_id" 
                 axisLine={false}
                 tickLine={false}
-                tick={{ fontSize: 13, fill: '#94a3b8', fontWeight: 500 }}
+                tick={{ fontSize: 11, fill: '#64748b', fontWeight: 600 }}
                 tickFormatter={(str) => {
                   const date = new Date(str);
                   return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
                 }}
-                dy={10}
+                dy={15}
               />
               <YAxis 
                 axisLine={false}
                 tickLine={false}
-                tick={{ fontSize: 13, fill: '#94a3b8', fontWeight: 500 }}
+                tick={{ fontSize: 11, fill: '#64748b', fontWeight: 600 }}
                 dx={-10}
               />
               <Tooltip 
-                cursor={{ stroke: '#e2e8f0', strokeWidth: 2 }}
+                cursor={{ stroke: 'rgba(139, 92, 246, 0.2)', strokeWidth: 2 }}
                 contentStyle={{ 
-                  borderRadius: '16px', 
-                  border: 'none', 
-                  boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',
-                  padding: '12px 16px',
-                  backgroundColor: '#ffffff'
+                  borderRadius: '20px', 
+                  border: '1px solid rgba(255,255,255,0.1)', 
+                  boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)',
+                  padding: '16px',
+                  backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                  backdropFilter: 'blur(16px)'
                 }}
-                itemStyle={{ color: '#0f172a', fontWeight: 'bold' }}
-                labelStyle={{ color: '#64748b', marginBottom: '4px' }}
+                itemStyle={{ color: '#fff', fontWeight: '800', fontSize: '18px' }}
+                labelStyle={{ color: '#94a3b8', marginBottom: '6px', fontSize: '12px', fontWeight: '600' }}
                 labelFormatter={(label) => new Date(label).toLocaleDateString(undefined, { dateStyle: 'long' })}
               />
               <Line 
                 type="monotone" 
                 dataKey="count" 
-                stroke="#2563eb" 
-                strokeWidth={4}
-                dot={{ r: 4, fill: '#2563eb', strokeWidth: 2, stroke: '#fff' }}
-                activeDot={{ r: 8, strokeWidth: 0, fill: '#2563eb' }}
-                animationDuration={2000}
+                stroke="#8b5cf6" 
+                strokeWidth={5}
+                dot={{ r: 5, fill: '#8b5cf6', strokeWidth: 3, stroke: '#1e1b4b' }}
+                activeDot={{ r: 8, strokeWidth: 0, fill: '#fff' }}
+                animationDuration={2500}
               />
             </LineChart>
           </ResponsiveContainer>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
-      {/* User Table */}
-      <Card className="border-none shadow-[0_8px_30px_rgb(0,0,0,0.04)] bg-white overflow-hidden">
-        <CardHeader className="px-8 pt-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="text-xl font-bold text-slate-900 text-pretty">User Directory</CardTitle>
-              <CardDescription>Detailed overview of all platform members</CardDescription>
-            </div>
-            <div className="text-xs font-bold text-slate-400 uppercase bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100">
-              {users.length} Total Members
-            </div>
+      {/* ── USER TABLE ── */}
+      <div className="glass-card rounded-[2.5rem] overflow-hidden opacity-0 animate-[fadeInScale_1s_0.4s_ease_both]">
+        <div className="px-10 pt-10 flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
+          <div>
+            <h2 className="text-3xl font-black text-white tracking-tight">User Directory</h2>
+            <p className="text-slate-500 font-light mt-1">Manage and audit all platform participants.</p>
           </div>
-        </CardHeader>
-        <CardContent className="px-8 pb-8 mt-6">
-          <div className="overflow-x-auto rounded-xl border border-slate-100">
-            <table className="w-full text-left text-sm whitespace-nowrap">
+          <div className="badge-pill px-5 py-2.5 rounded-2xl flex items-center gap-3 shadow-xl">
+            <span className="text-xs font-black text-violet-400 uppercase tracking-widest">{users.length} TOTAL</span>
+          </div>
+        </div>
+
+        <div className="px-6 pb-10">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm border-separate border-spacing-y-3">
               <thead>
-                <tr className="bg-slate-50 border-b border-slate-100">
-                  <th className="px-6 py-4 font-bold text-slate-600 uppercase tracking-wider text-[11px]">User Profile</th>
-                  <th className="px-6 py-4 font-bold text-slate-600 uppercase tracking-wider text-[11px]">Email Address</th>
-                  <th className="px-6 py-4 font-bold text-slate-600 uppercase tracking-wider text-[11px]">Status</th>
-                  <th className="px-6 py-4 font-bold text-slate-600 uppercase tracking-wider text-[11px]">Role</th>
-                  <th className="px-6 py-4 font-bold text-slate-600 uppercase tracking-wider text-[11px]">Joined Date</th>
+                <tr className="text-slate-500 text-[10px] uppercase font-black tracking-[0.2em]">
+                  <th className="px-8 pb-4">User Profile</th>
+                  <th className="px-6 pb-4">Email</th>
+                  <th className="px-6 pb-4">Status</th>
+                  <th className="px-6 pb-4">Role</th>
+                  <th className="px-6 pb-4">Joined</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-50">
+              <tbody className="space-y-4">
                 {users.map((user) => (
-                  <tr key={user._id} className="group hover:bg-slate-50/50 transition-colors">
-                    <td className="px-6 py-5">
-                      <div className="flex items-center gap-3">
-                        <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-black text-xs shadow-sm">
+                  <tr key={user._id} className="group transition-all duration-300">
+                    <td className="px-8 py-5 bg-white/5 first:rounded-l-3xl border-y border-l border-white/5 group-hover:bg-white/10 group-hover:border-violet-500/20 transition-colors">
+                      <div className="flex items-center gap-4">
+                        <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center text-white font-black text-sm shadow-xl shadow-slate-950/40">
                           {user.username[0].toUpperCase()}
                         </div>
-                        <span className="font-bold text-slate-900">{user.username}</span>
+                        <span className="font-black text-slate-100 text-base">{user.username}</span>
                       </div>
                     </td>
-                    <td className="px-6 py-5">
-                      <span className="text-slate-600 font-medium">{user.email}</span>
+                    <td className="px-6 py-5 bg-white/5 border-y border-white/5 group-hover:bg-white/10 group-hover:border-violet-500/20 transition-colors">
+                      <span className="text-slate-400 font-medium">{user.email}</span>
                     </td>
-                    <td className="px-6 py-5">
+                    <td className="px-6 py-5 bg-white/5 border-y border-white/5 group-hover:bg-white/10 group-hover:border-violet-500/20 transition-colors">
                       {user.isVerified ? (
-                        <div className="flex items-center gap-1.5 text-green-600 bg-green-50 px-2.5 py-1 rounded-full w-fit">
-                          <div className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse" />
-                          <span className="text-[11px] font-bold uppercase">Verified</span>
+                        <div className="flex items-center gap-2 text-emerald-400 font-black text-[10px] uppercase tracking-widest bg-emerald-500/10 px-3 py-1.5 rounded-xl w-fit border border-emerald-500/20">
+                          <div className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                          Verified
                         </div>
                       ) : (
-                        <div className="flex items-center gap-1.5 text-slate-400 bg-slate-50 px-2.5 py-1 rounded-full w-fit border border-slate-100">
-                          <div className="h-1.5 w-1.5 rounded-full bg-slate-300" />
-                          <span className="text-[11px] font-bold uppercase">Pending</span>
+                        <div className="flex items-center gap-2 text-slate-500 font-black text-[10px] uppercase tracking-widest bg-white/5 px-3 py-1.5 rounded-xl w-fit border border-white/10">
+                          Pending
                         </div>
                       )}
                     </td>
-                    <td className="px-6 py-5">
+                    <td className="px-6 py-5 bg-white/5 border-y border-white/5 group-hover:bg-white/10 group-hover:border-violet-500/20 transition-colors">
                       <span className={cn(
-                        "px-2.5 py-1 rounded-lg text-[11px] font-black uppercase border",
+                        "px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest border",
                         user.role === 'admin' 
-                          ? "bg-indigo-50 text-indigo-700 border-indigo-100" 
-                          : "bg-slate-50 text-slate-500 border-slate-100"
+                          ? "bg-violet-500/20 text-violet-300 border-violet-500/30" 
+                          : "bg-white/5 text-slate-400 border-white/10"
                       )}>
                         {user.role}
                       </span>
                     </td>
-                    <td className="px-6 py-5 text-slate-500 font-medium">
+                    <td className="px-6 py-5 bg-white/5 last:rounded-r-3xl border-y border-r border-white/5 group-hover:bg-white/10 group-hover:border-violet-500/20 transition-colors text-slate-500 font-bold">
                       {new Date(user.createdAt).toLocaleDateString(undefined, { 
-                        year: 'numeric', 
                         month: 'short', 
-                        day: 'numeric' 
+                        day: 'numeric',
+                        year: 'numeric'
                       })}
                     </td>
                   </tr>
@@ -264,8 +268,8 @@ export default function AdminDashboard() {
               </tbody>
             </table>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }
