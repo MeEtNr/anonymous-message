@@ -1,9 +1,25 @@
 import dbConnect from "@/lib/dbConnect";
 import UserModel from "@/models/User";
 import { Message } from "@/models/User";
+import { checkRateLimit } from "@/lib/rateLimit";
 
 export async function POST(req: Request) {
-  dbConnect();
+  await dbConnect();
+
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0] || "127.0.0.1";
+  const { success, limit, resetAt } = await checkRateLimit(ip, "send-message", 3, 60);
+
+  if (!success) {
+    return Response.json(
+      {
+        success: false,
+        message: `Whoa, slow down a bit 😅 Try again in ${resetAt?.toLocaleTimeString() || "a minute"}.`,
+      },
+      {
+        status: 429,
+      }
+    );
+  }
 
   const { username, content } = await req.json();
   try {

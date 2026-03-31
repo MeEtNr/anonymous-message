@@ -94,9 +94,10 @@ const QuestionPage = () => {
         toast.success("Message sent successfully");
         setMessage(""); // clear input
       }
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
-      toast.error("Unable to send a message");
+      const errorMessage = error.response?.data?.message || "Unable to send a message";
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
