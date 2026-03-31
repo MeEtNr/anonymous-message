@@ -221,7 +221,7 @@ const QuestionPage = () => {
               className="badge-pill gap-2 rounded-full text-violet-300 hover:text-white border-violet-500/20"
               onClick={() => share({
                 title: "Send me anonymous messages 👀",
-                text: `Join the conversation on this thread: "${question.content}"\nI’ll reply honestly`,
+                text: `What do you think about this? "${question.content}"`,
                 url: window.location.href,
               })}
             >

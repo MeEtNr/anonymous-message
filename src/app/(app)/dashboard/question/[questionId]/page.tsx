@@ -133,7 +133,7 @@ export default function QuestionDetailPage() {
   const handleShareQuestion = () => {
     share({
       title: "Send me anonymous messages 👀",
-      text: `Join the conversation on this thread: "${question.content}"\nI’ll reply honestly`,
+      text: `What do you think about this? "${question.content}"`,
       url: publicUrl,
     });
   };

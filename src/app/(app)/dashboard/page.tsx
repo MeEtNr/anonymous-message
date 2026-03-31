@@ -102,7 +102,7 @@ export default function UserDashboard() {
   const handleShareProfile = () => {
     share({
       title: "Send me anonymous messages 👀",
-      text: "Send me anonymous messages 👀\nI’ll reply honestly",
+      text: "Send me anonymous messages 👀",
       url: profileUrl,
     });
   };

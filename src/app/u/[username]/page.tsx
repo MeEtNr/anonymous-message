@@ -165,7 +165,7 @@ const Page = () => {
               className="badge-pill gap-2 rounded-full text-violet-300 hover:text-white border-violet-500/20"
               onClick={() => share({
                 title: "Send me anonymous messages 👀",
-                text: "Send me anonymous messages 👀\nI’ll reply honestly",
+                text: "Send me anonymous messages 👀",
                 url: window.location.href,
               })}
             >
