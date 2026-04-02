@@ -46,6 +46,8 @@ function FloatingOrb({
         top,
         left,
         animation: `floatOrb ${duration} ${delay} ease-in-out infinite alternate`,
+        willChange: "transform",
+        transform: "translateZ(0)",
       }}
     />
   );
@@ -70,20 +72,25 @@ function StatCounter({
       ([entry]) => {
         if (entry.isIntersecting && !started.current) {
           started.current = true;
-          let start = 0;
-          const step = value / 60;
-          const timer = setInterval(() => {
-            start += step;
-            if (start >= value) {
-              setCount(value);
-              clearInterval(timer);
-            } else {
-              setCount(Math.floor(start));
+          let startTimestamp: number | null = null;
+          const duration = 1500;
+          
+          const step = (timestamp: number) => {
+            if (!startTimestamp) startTimestamp = timestamp;
+            const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+            
+            // Easing function for smoother finish
+            const easeOutQuad = (t: number) => t * (2 - t);
+            setCount(Math.floor(easeOutQuad(progress) * value));
+            
+            if (progress < 1) {
+              requestAnimationFrame(step);
             }
-          }, 16);
+          };
+          requestAnimationFrame(step);
         }
       },
-      { threshold: 0.5 }
+      { threshold: 0.2 }
     );
     if (ref.current) observer.observe(ref.current);
     return () => observer.disconnect();
@@ -208,8 +215,8 @@ export default function Home() {
         .hero-cta {
           animation: slideUp 0.8s 0.6s ease both;
         }
-        .hero-carousel {
-          animation: fadeInScale 0.9s 0.8s ease both;
+        .hero-title, .hero-subtitle, .hero-cta, .hero-carousel {
+          will-change: transform, opacity;
         }
         .shimmer-text {
           background: linear-gradient(
@@ -225,6 +232,7 @@ export default function Home() {
           background-clip: text;
           -webkit-text-fill-color: transparent;
           animation: shimmer 4s linear infinite;
+          will-change: background-position;
         }
         .glass-card {
           background: rgba(255, 255, 255, 0.03);
@@ -232,11 +240,12 @@ export default function Home() {
           -webkit-backdrop-filter: blur(20px);
           border: 1px solid rgba(255, 255, 255, 0.08);
           transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+          transform: translateZ(0); /* Force layer promotion */
         }
         .glass-card:hover {
           background: rgba(255, 255, 255, 0.06);
           border-color: rgba(139, 92, 246, 0.4);
-          transform: translateY(-6px);
+          transform: translateY(-6px) translateZ(0);
           box-shadow: 0 20px 60px rgba(139, 92, 246, 0.15), 0 0 0 1px rgba(139, 92, 246, 0.1);
         }
         .cta-btn {
@@ -245,6 +254,7 @@ export default function Home() {
           transition: all 0.4s ease;
           position: relative;
           overflow: hidden;
+          transform: translateZ(0);
         }
         .cta-btn::after {
           content: '';
@@ -267,10 +277,12 @@ export default function Home() {
           border: 1px solid rgba(139, 92, 246, 0.2);
           backdrop-filter: blur(20px);
           transition: all 0.3s ease;
+          transform: translateZ(0);
         }
         .message-card:hover {
           border-color: rgba(139, 92, 246, 0.5);
           box-shadow: 0 0 30px rgba(139, 92, 246, 0.1);
+          transform: scale(1.02) translateZ(0);
         }
         .feature-card {
           transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
@@ -290,13 +302,19 @@ export default function Home() {
           background-size: 60px 60px;
         }
         .noise-overlay {
-          background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-          opacity: 0.03;
+          background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+          opacity: 0.025;
+          pointer-events: none;
         }
         .badge-pill {
           background: rgba(139, 92, 246, 0.15);
           border: 1px solid rgba(139, 92, 246, 0.35);
           backdrop-filter: blur(10px);
+          transform: translateZ(0);
+        }
+        .content-section {
+          content-visibility: auto;
+          contain-intrinsic-size: 1px 500px;
         }
         @media (prefers-reduced-motion: reduce) {
           .shimmer-text { animation: none; }
@@ -422,7 +440,7 @@ export default function Home() {
         </section>
 
         {/* ── STATS SECTION ────────────────────────────── */}
-        <section className="relative z-10 py-16 px-6">
+        <section className="relative z-10 py-16 px-6 content-section">
           <div className="max-w-4xl mx-auto">
             <div
               className="glass-card rounded-3xl p-8 sm:p-12 flex flex-col sm:flex-row items-center justify-around gap-8 sm:gap-4"
@@ -441,7 +459,7 @@ export default function Home() {
         </section>
 
         {/* ── CAROUSEL SECTION ─────────────────────────── */}
-        <section className="relative z-10 py-20 px-4">
+        <section className="relative z-10 py-20 px-4 content-section">
           <div className="max-w-4xl mx-auto text-center mb-12">
             <p className="text-xs sm:text-sm font-semibold tracking-[0.3em] text-violet-400 uppercase mb-4">
               Live Preview
@@ -508,7 +526,7 @@ export default function Home() {
         </section>
 
         {/* ── HOW IT WORKS ─────────────────────────────── */}
-        <section className="relative z-10 py-24 px-6">
+        <section className="relative z-10 py-24 px-6 content-section">
           <div className="max-w-5xl mx-auto">
             <div className="text-center mb-16">
               <p className="text-xs sm:text-sm font-semibold tracking-[0.3em] text-violet-400 uppercase mb-4">
@@ -575,7 +593,7 @@ export default function Home() {
         </section>
 
         {/* ── FEATURES GRID ────────────────────────────── */}
-        <section className="relative z-10 py-24 px-6">
+        <section className="relative z-10 py-24 px-6 content-section">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-16">
               <p className="text-xs sm:text-sm font-semibold tracking-[0.3em] text-violet-400 uppercase mb-4">
@@ -611,7 +629,7 @@ export default function Home() {
         </section>
 
         {/* ── FINAL CTA BANNER ─────────────────────────── */}
-        <section className="relative z-10 py-24 px-6">
+        <section className="relative z-10 py-24 px-6 content-section">
           <div className="max-w-4xl mx-auto">
             <div
               className="rounded-[2.5rem] p-12 sm:p-16 text-center relative overflow-hidden"
